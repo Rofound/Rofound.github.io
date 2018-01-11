@@ -1,6 +1,6 @@
-#Android 环境搭建
+# Android 环境搭建
 ***
-##原料：
+## 原料：
 - Windows 10 企业版(64位)
 - Eclipse 3.3及以上(64位)
 ![https://i.imgur.com/jg1wv3W.png](https://i.imgur.com/jg1wv3W.png)
