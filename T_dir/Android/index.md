@@ -5,6 +5,8 @@
 - Eclipse 3.3及以上(64位)
 ![https://i.imgur.com/jg1wv3W.png](https://i.imgur.com/jg1wv3W.png)
 - android-sdk_r24.4.1-windows.zip(SDK)
+
+[`https://dl.google.com/android/android-sdk_r24.4.1-windows.zip`](https://dl.google.com/android/android-sdk_r24.4.1-windows.zip)
 - ADT-23.0.6.zip(ADT,下载速度很快)
 - jdk-1.8.0_121(64位)
 - CPU虚拟化检测软件
