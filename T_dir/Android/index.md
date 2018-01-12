@@ -12,6 +12,7 @@
 用于检查cpu虚拟化功能，若未开启，请进入bios 开启相关设置，开启cpu虚拟化用于加快虚拟机的运行（。。有点扯，我乱写的）。
 - genymotion-2.3.1-vbox.exe
 安装完成后会弹出一个Oracle VM VirtualBox的安装界面一起安装便是，安装好后如果启动Oracle VM VirtualBox运行虚拟机很卡，就重装下面的VirtualBox-4.3.6-91406-Win.exe，就可变好，这个版本对windows10 还不是完全兼容所以请在安装时勾选属性中的 “以兼容性模式运行这个程序”并选中下拉列表中的Windows 7、以管理员身份运行此程序这两处，由于genymotion软件本身就是调用的VirtualBox的接口，所以也给virtualBox管理员权限。
+![](https://i.imgur.com/uJvkyA3.png)
 - VirtualBox-4.3.6-91406-Win.exe 
 这个版本的virtualBox对windows10 还不是完全兼容所以请在安装时勾选属性中的 “以兼容性模式运行这个程序”并选中下拉列表中的Windows 7、以管理员身份运行此程序这两处。
 - 将下面的jar包放到eclipse目录下的plugins目录下即可：
