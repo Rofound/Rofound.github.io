@@ -22,7 +22,7 @@ com.genymobile.genymotion.lib_1.0.3.201403261147.jar
 - Htc.ova
 ![ova](https://i.imgur.com/0dbp3E0.png)
 # 下载eclipse
-[`https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/2/eclipse-jee-oxygen-2-win32-x86_64.zip`](https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/2/eclipse-jee-oxygen-2-win32-x86_64.zip)
+[`https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/2/eclipse-jee-oxygen-2-win32-x86_64.zip&mirror_id=105`](https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/2/eclipse-jee-oxygen-2-win32-x86_64.zip&mirror_id=105)
 # 下载有关android 的开发工具、jdk-1.8.0_121(64位)、
 [`http://tools.android-studio.org/index.php`](http://tools.android-studio.org/index.php)
 # ADT-23.0.6.zip
