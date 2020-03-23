@@ -79,6 +79,7 @@
           [v-cloak]{display: none;}
           .hide{display: none;}
           .open-all{font-size: 12px;cursor: pointer;}
+          [href]{color:#3cbe7f;}
         </style><table id="app" v-cloak cellpadding="0" cellspacing="0" align="center" bgcolor="#fff" class="column"><tbody><tr><td valign="top"><table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box1"><tbody><tr>
 <td class="hbox" align="middle" style="width: 49px;"><img style="display:none;" src="./MyCV_files/man.png" width="85" height="104" class="head"></td>
 <td><table cellspacing="0" cellpadding="0" border="0" class="infr"><tbody>
@@ -91,10 +92,10 @@
 <!-- <td valign="top">
 <img class="vam" src="./MyCV_files/y1.png" width="20" height="20">目前正在找工作</td> -->
 <td valign="top">
-<img class="vam" src="./MyCV_files/y2.png" width="20" height="20">13203205922</td>
+<img class="vam" src="./MyCV_files/y2.png" width="20" height="20"><a href="tel:13203205922">13203205922</a> (微信同号)</td>
 <td valign="top"><table cellspacing="0" cellpadding="0" border="0" class="email"><tbody><tr>
 <td valign="top" width="25"><img class="vam" style="margin-top: 5px;"  src="./MyCV_files/y3.png" width="20" height="20"></td>
-<td valign="top" class="txt4">tobelee@qq.com</td>
+<td valign="top" class="txt4"><a href="mailto:tobelee@qq.com">tobelee@qq.com</a></td>
 </tr></tbody></table></td>
 </tr>
 <tr><td valign="top" colspan="3"><p><img class="vam" src="./MyCV_files/y4.png" width="20" height="20">男<span class="p5">|</span><span id="age">21 岁</span> (1998/05/23)<span class="p5">|</span>现居住上海-松江区<span class="p5">|</span>三年经验
@@ -186,15 +187,38 @@
 </tr></thead>
 <tbody><tr>
 <td valign="top" class="keys">自我评价：</td>
-<td valign="top" class="txt1">性格开朗、有活力、待人真诚、热爱锻炼、喜欢书法、热爱网络、学习努力，能吃苦耐劳、虚心求教、实践能力强、自学习能力强,在校期间表现优异获得过奖助学金。</td>
+<td valign="top" class="txt1">性格开朗、有活力、待人真诚、热爱锻炼、喜欢书法、热爱网络、学习努力，能吃苦耐劳、虚心求教、实践能力强、自学能力强,在校期间表现优异获得过奖学金。</td>
 </tr></tbody>
 </table></td></tr>
 </tbody></table></td></tr>
 </tbody></table>
+
 <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
 <tr><td class="plate1">工作经验<span class="open-all" @click="changeShow('workExperiencesBefore')">{{historyShow('workExperiencesBefore')}}</span></td></td></tr>
-<tr><td class="tba" :class="[hideClass('workExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0">
-<tbody><tr><td class="p15"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr><td class="tba">
+<table cellspacing="0" cellpadding="0" border="0">
+<tbody>
+
+  <tr><td class="p15 "><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr>
+<td valign="top" class="time">2018/8-至今</td>
+<td valign="top" class="rtbox">
+<strong class="txt3">前端开发工程师</strong><span class="p5">|</span><span>研发体系/数据中心</span>
+</td>
+</tr>
+<tr><td class="phd tb1" colspan="2">
+<span>上海德拓信息技术股份有限公司</span><span class="gray">&nbsp;[19个月]
+                    </span>
+</td></tr>
+<tr><td class="phd tb1 gray2" colspan="2">互联网 / 大数据<span class="p5">|</span>大于450人<span class="p5">|</span>合资</td></tr>
+<tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+<td valign="top" class="keys">工作描述：</td>
+<td valign="top" class="txt1">1、负责公司项目的前端模块开发和维护。<br>2、与设计师、后端研发人员高效协作，完成产品需求开发。<br>3、编写易读、易维护的代码，参与团队规范建设。<br>4、关注前沿技术，进行新技术调研，通过技术服务团队和业务。</td>
+</tr></tbody></table></td></tr>
+</tbody></table></td>
+</tr>
+
+<tr :class="[hideClass('workExperiencesBefore')]"><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2018/3-2018/7</td>
 <td valign="top" class="rtbox">
@@ -210,8 +234,10 @@
 <td valign="top" class="keys">工作描述：</td>
 <td valign="top" class="txt1">1、完成组长分配的前端开发任务。<br>2、微信公众号开发与维护。<br>3、web前端静态页面开发与数据绑定。<br>4、学习一些新的库用于项目中的技术难点: webupload.js 、iscroll-probe.js。</td>
 </tr></tbody></table></td></tr>
-</tbody></table></td></tr>
-<tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+</tbody></table></td>
+</tr>
+
+<tr :class="[hideClass('workExperiencesBefore')]"><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2017/7-2018/2</td>
 <td valign="top" class="rtbox">
@@ -229,11 +255,184 @@
 </tr></tbody></table></td></tr>
 </tbody></table></td></tr>
 </tbody></table></td></tr>
+
 </tbody></table>
 <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
-<tr><td class="plate1">项目经验<span class="open-all" @click="changeShow('projectExperiencesBefore')">{{historyShow('projectExperiencesBefore')}}</span></td></td></tr>
-<tr><td class="tba" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0">
-<tbody><tr><td class="p15"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr>
+  
+  <td class="plate1">项目经验<span class="open-all" @click="changeShow('projectExperiencesBefore')">{{historyShow('projectExperiencesBefore')}}</span></td></td></tr>
+<tr>
+  
+  <td class="" >
+    <table cellspacing="0" cellpadding="0" border="0">
+<tbody>
+
+    <tr>
+      <td class="tba" ><table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2019/10~至今</td>
+      <td valign="top" class="rtbox"><strong>公司内部系统 -- itbasic2.0 </strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1">该项目是为企业管理而生的系统，包含公司业务服务及公司内部管理。
+ <br>
+  Vue+Vuex+Ant-design-of-vue+less+scss+axios+Vue-CLI@3.x + webpack-cdn-plugin+vuex-persistedstate+Vue-router
+  <br>
+  1. 使用Vue-CLI@3.x进行项目搭建; 
+  <br>
+  2. 使用Ant-design-of-vue 组件实现设计搞； 
+  <br>
+</td>
+      </tr></tbody></table></td></tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">把老版itbasic1.0的模块重写，涉及模块包含用户设置（密码、头像、签名）、新增管理（合同、服务、人员、商机、报销）、活动管理、协会字管理、积分管理、销售日报、产品管理、需求管理、销售驾驶舱。</td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="tba" >
+        <table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2019/12~2019/12/15</td>
+      <td valign="top" class="rtbox"><strong>MOOC视频课程爬取平台</strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1">该项目是为公司客户而实现的，目的是利用python爬取客户需要的视频课程。项目模块有搜索课程（类似百度搜索）、课程详情（课程介绍、下载章节视频、预览下载完成的章节视频、下载出错后重试下载章节）、平台帐号管理、任务查看器（可以查看状态（已下载、下载中、下载完成、下载失败）及搜索相应状态下的课程）、平台帐号管理（增加、删除、修改、列表查看）;
+    <br>
+      Vue+Vuex+Ant-design-of-vue+less+axios+Vue-CLI@3.x + webpack-cdn-plugin+vuex-persistedstate+Vue-router
+      <br>
+      1. 使用Vue-CLI@3.x进行项目搭建; 
+      <br>
+      2. 使用Ant-design-of-vue 组件实现设计搞； 
+      <br>
+    </td>
+    </tr></tbody></table></td></tr>
+
+    <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">项目搭建及功能实现</td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+  
+  <td class="tba" >
+    <table cellspacing="0" cellpadding="0" border="0">
+<tbody>
+
+    <tr>
+      <td class="p15 con" ><table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2019/8~2019/9</td>
+      <td valign="top" class="rtbox"><strong>python脚本爬虫管理平台</strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1"> 模块：登录、退出、用户模块（新建用户、删除用户、搜索用户、设为管理员、查看用户列表）、爬虫模块（新建爬虫、删除爬虫、更新爬虫、查询爬虫、查看爬虫列表）、角色模块（新建角色、删除角色、修改角色、查看角色列表）、任务模块（运行爬虫任务、下载爬虫数据、删除爬虫任务、查询爬虫任务）、用户权限(普通用户和管理员，可以通过配置router.config.js 来修改用户所拥有的模块访问权限);
+ <br>
+  Vue+Vuex+Ant-design-of-vue+less+axios+Vue-CLI@3.x + webpack-cdn-plugin+vuex-persistedstate+Vue-router
+  <br>
+  1. 使用Vue-CLI@3.x为主要技术栈进行项目搭建; 
+  <br>
+  2. 使用Ant-design-of-vue 组件实现设计搞； 
+  <br>
+</td>
+      </tr></tbody></table></td></tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">项目搭建及功能实现</td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="p15 con" ><table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2019/4~2019/7</td>
+      <td valign="top" class="rtbox"><strong>数据化运营管理系统</strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1">数据化运营是公司高层对公司管理的一个数据可视化分析、及时告警。用户主要有公司负责人，体系负责 人，部门经理。分别有经营分析、人员分析、商机分析，人才盘点四个模块。经营分析主要包含公司的产 品，合同，收入，应收，行业，销售排行；人员分析主要有人员岗位分布，入职时间，年龄层次，教育层 次，性别比，婚姻况状，成熟度，人数波动，学历等；商机分析主要有四个季度预测（当前季度往前推三个季度），新增项目，项目同比环比数据，商机构成，丢单分析，项目状态，项目延期排名，无商机合同。
+ <br>
+  Vue+Vuex+ElementUI+scss+axios+Vue-CLI@3.x + webpack-cdn-plugin+vuex-persistedstate+Vue-router+Echarts
+  <br>
+  1. 使用Vue-CLI@3.x为主要技术栈进行项目搭建; 
+  <br>
+  2. 使用ElementUI组件实现设计搞； 
+  <br>
+  3. 及时告警使用WebSocket 保持消息推送； 
+  <br>
+  4. 使用ECharts 展示统计数据，点击ECharts 对应数据项显示详细; 
+  <br>
+  5. 使用自定义vue指令 完成界面元素权限显示；  
+</td>
+      </tr></tbody></table></td></tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">项目搭建及人员分析，经营分析模块，权限管理，统一登录，统一退出登录。 </td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="p15 con" ><table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2018/10~2018/10/5</td>
+      <td valign="top" class="rtbox"><strong>德拓翻译</strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1">接入google 翻译接口，完成8国语言的翻译功能，是政府的一个招标项目，           项目功能完成8语言实时翻译。
+  <br>
+  1. 使用jQuery + bootstrap； 
+  <br>
+  2. 使用jQuery.ajax 进行接口请求； 
+</td>
+      </tr></tbody></table></td></tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">调用python后端接口完成前端功能实现</td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="p15 con" ><table cellspacing="0" cellpadding="0" border="0"><tbody>
+      <tr>
+      <td valign="top" class="time">2018/8~2019/2</td>
+      <td valign="top" class="rtbox"><strong>数据交易平台</strong></td>
+      </tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">项目描述：</td>
+      <td valign="top" class="txt1">项目类似https://www.juhe.cn/, 该项目为许多行业提供数据与接口的交易平台，项目模块有行业数                据集服务，登录，注册, 个人中心等。行业接口服务。行业数据集展示行业数据集的预览，热度 ，下            载，评论，收藏等功能；接口服务有接口预览，热度，示例，申请，收藏，下载, 评论等功能。 
+  <br>
+  1. 前端大部分模块使用模版库swig 由nodejs后端渲染界面,通过nodejs调用php端接口获取数据传入前端模版; 
+  <br>
+  2. 个人中心使用 Vue+Vuex+Iview+scss+axios+Vue-CLI@3.x + webpack-cdn-plugin+vuex-persistedstate+Vue-router ； 
+  <br>
+  3. 使用 web work 处理大量json 转换为对象并显示到界面； 
+</td>
+      </tr></tbody></table></td></tr>
+      <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
+      <td valign="top" class="keys">责任描述：</td>
+      <td valign="top" class="txt1">调用nodejs后端接口完成功能实现</td>
+      </tr></tbody></table></td></tr>
+      </tbody></table>
+      </td>
+    </tr>
+  
+    <tr>
+
+  <td class="p15 con" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2018/6-2018/7</td>
 <td valign="top" class="rtbox"><strong>派拍房后台管理系统</strong></td>
@@ -246,8 +445,10 @@
 <td valign="top" class="keys">责任描述：</td>
 <td valign="top" class="txt1">1、出租、出售上架房源界面编写与数据绑定。<br>2、审核房源静态界面编写与数据绑定。</td>
 </tr></tbody></table></td></tr>
-</tbody></table></td></tr>
-<tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+</tbody></table></td>
+
+</tr>
+<tr><td class="p15 con" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2018/4-2018/5</td>
 <td valign="top" class="rtbox"><strong>派拍房网页</strong></td>
@@ -265,7 +466,7 @@
 <td valign="top" class="txt1">1、附近找房静态页面编写<br>2、地铁找房静态页面编写<br>3、贷款计算静态页面编写 </td>
 </tr></tbody></table></td></tr>
 </tbody></table></td></tr>
-<tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr><td class="p15 con" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2018/3-2018/5</td>
 <td valign="top" class="rtbox"><strong>派拍房公众号</strong></td>
@@ -283,7 +484,7 @@
 <td valign="top" class="txt1">1、我的订单模块中的出售订单、出租订单静态页面编写与数据绑定。<br>2、我的钱包模块静态页面编写与数据绑定。<br>3、下载app静态页面编写。<br>4、我要找房模块中的荷式竞价页面编写与数据绑定。<br>5、其它页面的bug维护。</td>
 </tr></tbody></table></td></tr>
 </tbody></table></td></tr>
-<tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr><td class="p15 con" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2017/11-2018/2</td>
 <td valign="top" class="rtbox"><strong>畅购</strong></td>
@@ -297,7 +498,7 @@
 <td valign="top" class="txt1">主要负责登录和注册模块及商品模块。</td>
 </tr></tbody></table></td></tr>
 </tbody></table></td></tr>
-<tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
+<tr><td class="p15 con" :class="[hideClass('projectExperiencesBefore')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2016/10-2017/1</td>
 <td valign="top" class="rtbox"><strong>学生信息管理系统</strong></td>
@@ -311,7 +512,9 @@
 <td valign="top" class="txt1">自主开发</td>
 </tr></tbody></table></td></tr>
 </tbody></table></td></tr>
-</tbody></table></td></tr>
+</tbody></table></td>
+
+</tr>
 </tbody></table>
 <table xmlns="" class="box"><tbody>
 <tr><td class="plate1">教育经历<span class="open-all" @click="changeShow('educationExperiencesShow')">{{historyShow('educationExperiencesShow', '', '>')}}</span></td></td></tr>
@@ -430,11 +633,12 @@
                       （二级乙等）
                     </span>
 </td>
-</tr></tbody></table></td></tr>
+</tr>
+</tbody></table></td></tr>
 </tbody></table>
 </td></tr>
 </tbody></table>
-<table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
+<!-- <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody> -->
 <tr><td class="plate1">附加信息<span class="open-all" @click="changeShow('attchmenExperiencesShow')">{{historyShow('attchmenExperiencesShow', '', '>')}}</span></td></td></tr>
 </td></tr>
 <tr><td class="tba" :class="[hideClass('attchmenExperiencesShow')]"><table cellspacing="0" cellpadding="0" border="0"><tbody>
@@ -503,6 +707,7 @@
 <td valign="top" class="txt1">2014-2015 优秀学生</td>
 </tr>
 </tbody></table></td></tr></tbody></table></td></tr>
+
 <tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="tb1"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
 <td valign="top" class="keys">附件：</td>
 <td valign="top" class="txt3">
@@ -510,33 +715,13 @@
                               查看&gt;
                             </a>
 </td>
-</tr></tbody></table></td></tr></tbody></table></td></tr>
+</tr></tbody></table></td></tr></tbody></table>
+</td>
+</tr>
 </tbody></table></td></tr>
-</tbody></table></td></tr></tbody></table id="app">
+</tbody></table></td></tr></tbody></table>
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script>
-  function calcAge (myBirthday) {
-    const birthday = new Date(myBirthday)
-    const birthdayYear = birthday.getUTCFullYear()
-    const birthdayMonth = birthday.getMonth() + 1
-    const birthdayDate = birthday.getDate()
-    const now = new Date()
-    const nowYear = now.getFullYear()
-    const nowMonth = now.getMonth() + 1
-    const nowDate = now.getDate()
-  
-    let virAge = nowYear - birthdayYear
-    if (nowMonth < birthdayMonth && nowDate < birthdayDate) {
-      virAge--
-    }
-
-    return virAge
-  }
-  // 年龄
-  document.getElementById('age').innerText = calcAge('1998-05-23') + ' 岁'
-  
-</script>
 <script>
   new Vue({
     el: '#app',
@@ -551,58 +736,131 @@
       skills: [
         {
           class: 'sl',
-          name: 'MySQL',  
-          text: '熟练'
-        },
-        {
-          class: 'lh',
-          name: 'Oracle',
-          text: '良好'
-        },
-        {
-          class: 'sl',
           name: 'HTML5',  
-          text: '熟练'
-        },
-        {
-          class: 'lh',
-          name: 'SQL',
-          text: '良好'
-        },
-        {
-          class: 'sl',
-          name: 'JavaScript',  
-          text: '熟练'
-        },
-        {
-          class: 'yb',
-          name: 'Android',
-          text: '一般'
-        },
-        {
-          class: 'yb',
-          name: 'PostgreSQL',  
-          text: '一般'
-        },
-        {
-          class: 'sl',
-          name: 'Java',
-          text: '熟练'
         },
         {
           class: 'sl',
           name: 'CSS',  
-          text: '熟练'
         },
         {
           class: 'sl',
-          name: 'SQL Server',
-          text: '熟练'
+          name: 'JavaScript',  
+        },
+        {
+          class: 'sl',
+          name: 'vuejs',  
+        },
+        {
+          class: 'sl',
+          name: 'jQuery',  
+        },
+        {
+          class: 'sl',
+          name: 'knockout.js',  
+        },
+        {
+          class: 'sl',
+          name: 'Vuex',  
+        },
+        {
+          class: 'sl',
+          name: 'Vue Router',  
+        },
+        {
+          class: 'sl',
+          name: 'Axios',  
+        },
+        {
+          class: 'sl',
+          name: 'Ant Design of Vue',  
+        },
+        {
+          class: 'sl',
+          name: 'iView',  
+        },
+        {
+          class: 'sl',
+          name: 'Element',  
+        },
+        {
+          class: 'sl',
+          name: 'ECharts',  
+        },
+        {
+          class: 'sl',
+          name: 'Vue Cli3.x',  
+        },
+        {
+          class: 'sl',
+          name: 'Nodejs',  
+        },
+        {
+          class: 'sl',
+          name: 'express',  
+        },
+        {
+          class: 'sl',
+          name: 'redis',  
+        },
+        {
+          class: 'lh',
+          name: 'webpack',  
+        },
+        {
+          class: 'lh',
+          name: 'scss',  
+        },
+        {
+          class: 'lh',
+          name: 'less',  
+        },
+        {
+          class: 'lh',
+          name: 'npm',  
+        },
+        {
+          class: 'lh',
+          name: 'yarn',  
+        },
+        {
+          class: 'lh',
+          name: 'git',  
+        },
+        {
+          class: 'lh',
+          name: 'svn',  
         },
         {
           class: 'lh',
           name: 'Linux',  
-          text: '良好'
+        },
+        {
+          class: 'yb',
+          name: 'MySQL',  
+        },
+        {
+          class: 'yb',
+          name: 'SQL',
+        },
+        {
+          class: 'yb',
+          name: 'Oracle',
+        },
+        {
+          class: 'yb',
+          name: 'PostgreSQL',  
+        },
+        {
+          class: 'yb',
+          name: 'SQL Server',
+        },
+        {
+          class: 'yb',
+          name: 'Android',
+        },
+        {
+          class: 'yb',
+          name: 'Java',
         },
       ]
     },
@@ -634,6 +892,27 @@
       },
     },
     computed: {
+    },
+    mounted() {
+      function calcAge (myBirthday) {
+        const birthday = new Date(myBirthday)
+        const birthdayYear = birthday.getUTCFullYear()
+        const birthdayMonth = birthday.getMonth() + 1
+        const birthdayDate = birthday.getDate()
+        const now = new Date()
+        const nowYear = now.getFullYear()
+        const nowMonth = now.getMonth() + 1
+        const nowDate = now.getDate()
+      
+        let virAge = nowYear - birthdayYear
+        if (nowMonth < birthdayMonth && nowDate < birthdayDate) {
+          virAge--
+        }
+
+        return virAge
+      }
+      // 年龄
+      document.getElementById('age').innerText = calcAge('1998-05-23') + ' 岁'
     },
   })
 </script>
