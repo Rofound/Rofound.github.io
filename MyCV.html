@@ -80,6 +80,7 @@
           .hide{display: none;}
           .open-all{font-size: 12px;cursor: pointer;}
           [href]{color:#3cbe7f;}
+          .text-center{text-align: center;}
         </style><table id="app" v-cloak cellpadding="0" cellspacing="0" align="center" bgcolor="#fff" class="column"><tbody><tr><td valign="top"><table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box1"><tbody><tr>
 <td class="hbox" align="middle" style="width: 49px;"><img style="display:none;" src="./MyCV_files/man.png" width="85" height="104" class="head"></td>
 <td><table cellspacing="0" cellpadding="0" border="0" class="infr"><tbody>
@@ -283,7 +284,7 @@
 <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
 <tr>
   
-  <td class="plate1">项目经验<span class="open-all" @click="changeShow('projectExperiencesBefore')">{{historyShow('projectExperiencesBefore')}}</span></td></td></tr>
+  <td class="plate1">项目经验</td></td></tr>
 <tr>
   
   <td class="" >
@@ -448,7 +449,11 @@
       <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
       <td valign="top" class="keys">责任描述：</td>
       <td valign="top" class="txt1">调用nodejs后端接口完成功能实现</td>
-      </tr></tbody></table></td></tr>
+      </tr>
+    
+    </tbody></table></td>
+  
+  </tr>
       </tbody></table>
       </td>
     </tr>
@@ -538,6 +543,11 @@
 </tbody></table></td>
 
 </tr>
+<tr class="p15">
+    <td class="tb1 text-center" colspan="2">
+      <span class="open-all " @click="changeShow('projectExperiencesBefore')">{{historyShow('projectExperiencesBefore', '更多项目经验<<<', '>>>')}}</span>
+    </td>
+  </tr>
 </tbody></table>
 <table xmlns="" class="box"><tbody>
 <tr><td class="plate1">教育经历<span class="open-all" @click="changeShow('educationExperiencesShow')">{{historyShow('educationExperiencesShow', '', '>')}}</span></td></td></tr>
