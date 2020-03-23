@@ -257,6 +257,29 @@
 </tbody></table></td></tr>
 
 </tbody></table>
+<table cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
+  <!-- <tr><td class="tit">技能/语言</td></tr> -->
+  <tr><td class="plate1">技能/语言</td></tr>
+  <tr><td class="p15">
+    <table cellspacing="0" cellpadding="0" border="0">
+      <tbody>
+
+        <tr v-for="skill in skills">
+          <td class="tb2 cell" :class="[skill.class? skill.class: 'hide']" valign="top">
+            <table cellspacing="0" cellpadding="0" border="0">
+              <tbody>
+                <tr>
+                  <td class="skill"><strong class="txt3">{{skill.name}}</strong></td>
+                  <td valign="top"><span class="skbg"><span class="skco">{{handleSkillText(skill)}}</span></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+
+  </tbody>
+  </table></td></tr> 
+</tbody></table>
 <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
 <tr>
   
@@ -533,7 +556,7 @@
 <tr><td class="p15 con"><table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr>
 <td valign="top" class="time">2013/9-2018/6</td>
-<td valign="top" class="rtbox"><strong>湖南软件职业学院</strong></td>
+<td valign="top" class="rtbox"><strong>湖南软件职业学院(全日制[学信网可查])</strong></td>
 </tr>
 <tr><td class="tb1" colspan="2">大专<span class="p5">|</span>软件工程</td></tr>
 <tr><td class="tb1" colspan="2"><table cellspacing="0" cellpadding="0" border="0"><tbody><tr>
@@ -572,32 +595,10 @@
 <table xmlns="" cellspacing="0" cellpadding="0" border="0" class="box"><tbody>
 <tr><td class="plate1">
               技能特长
-              <span class="f12">（包括IT技能、语言能力、证书）</span>
+              <span class="f12">（包括语言能力、证书）</span>
 </td></tr>
 <tr>
 <td class="tbb">
-<table cellspacing="0" cellpadding="0" border="0"><tbody>
-  <tr><td class="tit">技能/语言</td></tr>
-  <tr><td class="p15">
-    <table cellspacing="0" cellpadding="0" border="0">
-      <tbody>
-
-        <tr v-for="skill in skills">
-          <td class="tb2 cell" :class="[skill.class? skill.class: 'hide']" valign="top">
-            <table cellspacing="0" cellpadding="0" border="0">
-              <tbody>
-                <tr>
-                  <td class="skill"><strong class="txt3">{{skill.name}}</strong></td>
-                  <td valign="top"><span class="skbg"><span class="skco">{{handleSkillText(skill)}}</span></span></td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-
-  </tbody>
-  </table></td></tr> 
-</tbody></table>
 <table cellspacing="0" cellpadding="0" border="0"><tbody>
 <tr><td class="tit">证书<span class="open-all" @click="changeShow('certificateExperiencesShow')">{{historyShow('certificateExperiencesShow', '', '>')}}</span></td></td></tr>
 </td></tr>
@@ -728,11 +729,11 @@
     data: {
       message: 'hello world!',
       projectExperiencesBefore: false,
-      workExperiencesBefore: false,
+      workExperiencesBefore: true,
       schoolExperiencesShow: false,
       certificateExperiencesShow: false,
       attchmenExperiencesShow: false,
-      educationExperiencesShow: false,
+      educationExperiencesShow: true,
       skills: [
         {
           class: 'sl',
