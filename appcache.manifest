@@ -9,8 +9,6 @@ CACHE MANIFEST
 /static/gongzuotai.png
 /static/img/rili.b9a190cd.png
 /static/img/yilingqu.1acbe218.png
-/static/img/头像.844ed317.png
-/static/img/执行中.bc3ed2b5.png
 /static/index.f4fc78fe.css
 /static/jiashican-a.png
 /static/jiashican.png
@@ -47,14 +45,6 @@ CACHE MANIFEST
 /static/xiaoxi.png
 /static/yilingqu.png
 /static/zanwushuju.png
-/static/切换身份.png
-/static/头像.png
-/static/密码.png
-/static/已完成.png
-/static/已超时.png
-/static/待完成.png
-/static/执行中.png
-/static/未开始.png
 #34c6eec3216f08c6ac328e6861d9c5ff
 NETWORK:
 *
