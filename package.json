@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cache": "appcache-manifest '**/*.{html,css,js,png,jpg}' --network-star -o ./appcache.manifest && cd ../"
+    "cache": "appcache-manifest '**/*.{html,css,js,png,jpg}' --network-star -o appcache.manifest && cd ../"
   },
   "keywords": [],
   "author": "",
