@@ -1,1 +1,200 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Base64 Query</title><style>body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;background:#f4f6f8;color:#17202a}input,textarea,button{padding:12px;border:1px solid #ccd4dc;border-radius:8px;font-size:16px}input{width:70%}textarea{width:100%;box-sizing:border-box;min-height:110px;font-family:monospace}button{background:#1769d2;color:#fff;cursor:pointer}.panel{background:#fff;padding:16px;border-radius:8px;margin:18px 0}.result{background:#fff;border:1px solid #dce2e7;border-radius:8px;padding:16px;margin-top:12px}code{display:block;white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 14px}.copy{background:#e9f2ff;color:#1459a6;font-size:14px}.row{display:flex;gap:10px;align-items:center}.row button{white-space:nowrap}</style><h1>Base64 Data Query</h1><section class="panel"><label for="data"><b>Data (one a,b pair per line)</b></label><textarea id="data"></textarea><button id="update" type="button">Update data</button><span id="notice"></span></section><form id="f"><input id="q" placeholder="str"><button>Search</button></form><p id="s"></p><div id="r"></div><script>const initial=`Hello World,hello\n你好!,world`;let dataText=localStorage.getItem("base64-data")||initial;let rows=parse(dataText);data.value=dataText;function parse(text){return text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).flatMap(x=>{let i=x.indexOf(",");return i<0?[]:[{a:enc(x.slice(0,i).trim()),b:enc(x.slice(i+1).trim())}]})}function enc(x){return btoa(unescape(encodeURIComponent(x)))}const dec=x=>{try{return decodeURIComponent(escape(atob(x)))}catch{return "[invalid Base64 UTF-8]"}};update.onclick=()=>{dataText=data.value;rows=parse(dataText);localStorage.setItem("base64-data",dataText);notice.textContent=` Updated ${rows.length} rows`;setTimeout(()=>notice.textContent="",1800)};f.onsubmit=e=>{e.preventDefault();let v=q.value.trim();if(!v){s.textContent="Enter a string";r.innerHTML="";return}let m=rows.filter(x=>x.b===enc(v));s.textContent=`Found ${m.length}`;r.innerHTML=m.length?m.map(x=>`<article class="result"><small>a (raw)</small><code>${x.a}</code><small>a (decoded)</small><code>${dec(x.a)}</code><button class="copy" data-v="${encodeURIComponent(dec(x.a))}">Copy decoded</button></article>`).join(""):"<p>No matches</p>";r.querySelectorAll(".copy").forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.v));b.textContent="Copied"})};</script></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Base64 Query</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#111}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .controls{display:flex;gap:12px;align-items:center}
+    textarea{width:100%;height:160px;font-family:monospace;margin-top:8px}
+    .notice{font-size:0.9rem;color:#444}
+    .muted{color:#666;font-size:0.9rem}
+    label{display:inline-flex;align-items:center;gap:8px}
+    button{padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f6f6f6}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Base64 Query</h1>
+    <div class="controls">
+      <label title="当选中时，页面会将数据保存在 localStorage 中；未选中时，数据只保存在内存中（刷新后丢失）">
+        <input id="persistenceToggle" type="checkbox">
+        <span class="muted">Enable persistence</span>
+      </label>
+    </div>
+  </header>
+
+  <p class="notice">Persistence is disabled by default. When enabled, data will be stored in localStorage. When disabled, data is kept in memory only.</p>
+
+  <section>
+    <div>
+      <label for="key">Key</label>
+      <input id="key" type="text" placeholder="example-key" style="width:100%;margin-top:6px;padding:8px">
+    </div>
+    <div style="margin-top:12px">
+      <label for="value">Value</label>
+      <textarea id="value" placeholder="Paste text or base64 here"></textarea>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button id="saveBtn">Save</button>
+      <button id="loadBtn">Load</button>
+      <button id="deleteBtn">Delete</button>
+      <button id="clearBtn">Clear Memory</button>
+    </div>
+    <div style="margin-top:12px">
+      <strong>Stored keys:</strong>
+      <ul id="keysList"></ul>
+    </div>
+  </section>
+
+  <script>
+    // In-memory store used when persistence is disabled
+    const memoryStore = new Map();
+
+    // Storage wrapper - only uses localStorage when persistenceEnabled is true
+    const StorageController = (() => {
+      let persistenceEnabled = false; // default disabled
+
+      function isAvailable() {
+        try {
+          return typeof window !== 'undefined' && 'localStorage' in window;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function setPersistence(enabled) {
+        persistenceEnabled = Boolean(enabled);
+        // Save the user's preference so the toggle state survives reloads
+        // Note: this writes a single flag to localStorage even when persistence is disabled by default.
+        // The preference itself is considered safe to store; change if you prefer not to persist the preference.
+        if (isAvailable()) {
+          try { localStorage.setItem('__persistence_enabled__', persistenceEnabled ? '1' : '0'); } catch (e) {/* ignore */}
+        }
+      }
+
+      function getPersistence() {
+        return persistenceEnabled;
+      }
+
+      function save(key, value) {
+        if (persistenceEnabled && isAvailable()) {
+          try { localStorage.setItem(key, value); } catch (e) { console.warn('localStorage set failed', e); memoryStore.set(key, value); }
+        } else {
+          memoryStore.set(key, value);
+        }
+      }
+
+      function load(key) {
+        if (persistenceEnabled && isAvailable()) {
+          try { return localStorage.getItem(key); } catch (e) { console.warn('localStorage get failed', e); return memoryStore.get(key) ?? null; }
+        } else {
+          return memoryStore.get(key) ?? null;
+        }
+      }
+
+      function del(key) {
+        if (persistenceEnabled && isAvailable()) {
+          try { localStorage.removeItem(key); } catch (e) { console.warn('localStorage remove failed', e); }
+        }
+        memoryStore.delete(key);
+      }
+
+      function keys() {
+        const result = new Set();
+        // include memory keys
+        for (const k of memoryStore.keys()) result.add(k);
+        if (persistenceEnabled && isAvailable()) {
+          try {
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && k !== '__persistence_enabled__') result.add(k);
+            }
+          } catch (e) { /* ignore */ }
+        }
+        return Array.from(result);
+      }
+
+      function clearMemory() { memoryStore.clear(); }
+
+      return { setPersistence, getPersistence, save, load, del, keys, clearMemory };
+    })();
+
+    // UI wiring
+    const toggle = document.getElementById('persistenceToggle');
+    const keyInput = document.getElementById('key');
+    const valueInput = document.getElementById('value');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const keysList = document.getElementById('keysList');
+
+    // Initialize toggle state from the saved preference (if available)
+    (function init() {
+      let pref = null;
+      try { pref = localStorage.getItem('__persistence_enabled__'); } catch (e) { pref = null; }
+      if (pref === '1') {
+        toggle.checked = true;
+        StorageController.setPersistence(true);
+      } else {
+        toggle.checked = false;
+        StorageController.setPersistence(false);
+      }
+      refreshKeys();
+    })();
+
+    toggle.addEventListener('change', () => {
+      StorageController.setPersistence(toggle.checked);
+      refreshKeys();
+    });
+
+    saveBtn.addEventListener('click', () => {
+      const k = keyInput.value.trim();
+      const v = valueInput.value;
+      if (!k) { alert('Please enter a key'); return; }
+      StorageController.save(k, v);
+      refreshKeys();
+    });
+
+    loadBtn.addEventListener('click', () => {
+      const k = keyInput.value.trim();
+      if (!k) { alert('Please enter a key'); return; }
+      const v = StorageController.load(k);
+      if (v === null || v === undefined) { alert('No value found for that key'); return; }
+      valueInput.value = v;
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      const k = keyInput.value.trim();
+      if (!k) { alert('Please enter a key'); return; }
+      StorageController.del(k);
+      refreshKeys();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      StorageController.clearMemory();
+      refreshKeys();
+    });
+
+    function refreshKeys() {
+      keysList.innerHTML = '';
+      const ks = StorageController.keys().sort();
+      if (ks.length === 0) {
+        const li = document.createElement('li'); li.textContent = '(no keys)'; li.className = 'muted'; keysList.appendChild(li); return;
+      }
+      for (const k of ks) {
+        const li = document.createElement('li');
+        const btn = document.createElement('button'); btn.textContent = 'Load'; btn.style.marginRight = '8px';
+        btn.addEventListener('click', () => { keyInput.value = k; const v = StorageController.load(k); valueInput.value = v ?? ''; });
+        const del = document.createElement('button'); del.textContent = 'Del'; del.style.marginLeft = '8px';
+        del.addEventListener('click', () => { StorageController.del(k); refreshKeys(); });
+        li.textContent = k + ' '; li.prepend(btn); li.appendChild(del);
+        keysList.appendChild(li);
+      }
+    }
+  </script>
+</body>
+</html>
