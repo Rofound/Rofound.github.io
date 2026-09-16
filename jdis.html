@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP 序列化解析器 (J 类型)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    background: #f5f7fa;
+    color: #2c3e50;
+  }
+  h1 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: #7f8c8d;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #34495e;
+  }
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+    font-size: 14px;
+    border: 1px solid #dfe6e9;
+    border-radius: 6px;
+    resize: vertical;
+    background: #fafbfc;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background: #fff;
+  }
+  .examples {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .example-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: #ecf0f1;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #2c3e50;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .example-btn:hover { background: #d5dbdb; }
+  .result {
+    margin-top: 16px;
+  }
+  .result-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .result-box {
+    padding: 14px;
+    background: #2d3436;
+    color: #dfe6e9;
+    border-radius: 6px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px;
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+  .result-box.ok { border-left: 4px solid #00b894; }
+  .result-box.err { border-left: 4px solid #e74c3c; color: #ff7675; }
+  .type-hint {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #00b894;
+    color: #fff;
+    font-size: 11px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .note {
+    font-size: 12px;
+    color: #7f8c8d;
+    line-height: 1.7;
+    margin-top: 16px;
+  }
+  .note code {
+    background: #ecf0f1;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<h1>PHP 序列化解析器</h1>
+<div class="subtitle">支持 PHP 7.4+ 的 <code>J</code> (JSON) 类型，以及常见类型 i / s / b / d / N / a</div>
+
+<div class="card">
+  <label for="input">粘贴 Redis 返回值（含 \x0b \x0c 转义）</label>
+  <textarea id="input" placeholder='例如: "\x0bJ\x011\x0c"'></textarea>
+  <div class="examples">
+    <button class="example-btn" data-val='"\x0bJ\x011\x0c"'>J → 1</button>
+    <button class="example-btn" data-val='"\x0bJ\x04null\x0c"'>J → null</button>
+    <button class="example-btn" data-val='"\x0bJ\x06"abc"\x0c"'>J → "abc"</button>
+    <button class="example-btn" data-val='"\x0bJ\x0b{"a":1}\x0c"'>J → 对象</button>
+    <button class="example-btn" data-val='i:42;'>i → 42</button>
+    <button class="example-btn" data-val='s:5:"hello";'>s → "hello"</button>
+    <button class="example-btn" data-val='b:1;'>b → true</button>
+    <button class="example-btn" data-val='N;'>N → null</button>
+  </div>
+</div>
+
+<div class="card result">
+  <div class="result-label">解析结果</div>
+  <div id="output" class="result-box">等待输入...</div>
+</div>
+
+<div class="card note">
+  <strong>说明：</strong><br>
+  • <code>\x0b</code> 是 PHP 7.4+ 新序列化格式的类型前缀标记<br>
+  • <code>J</code> 表示 JSON 类型，格式为 <code>J&lt;长度&gt;&lt;JSON内容&gt;</code><br>
+  • 长度小于 128 字节时用单字节表示；更大时用 varint 变长编码<br>
+  • <code>\x0c</code> 是结尾标记<br>
+  • 从 Redis 读取时务必用 Buffer 模式（如 ioredis 的 <code>getBuffer</code>）
+</div>
+
+<script>
+// ============ 核心解析逻辑 ============
+
+/**
+ * 把 "\x0bJ\x011\x0c" 这种字符串转成真实字节数组
+ */
+function unescapeToBytes(str) {
+  const bytes = [];
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (ch === '\\' && str[i + 1] === 'x') {
+      // \xHH
+      const hex = str.substr(i + 2, 2);
+      bytes.push(parseInt(hex, 16));
+      i += 3;
+    } else if (ch === '\\' && str[i + 1] === 'n') {
+      bytes.push(0x0a); i += 1;
+    } else if (ch === '\\' && str[i + 1] === 'r') {
+      bytes.push(0x0d); i += 1;
+    } else if (ch === '\\' && str[i + 1] === 't') {
+      bytes.push(0x09); i += 1;
+    } else if (ch === '\\' && str[i + 1] === '\\') {
+      bytes.push(0x5c); i += 1;
+    } else if (ch === '\\' && str[i + 1] === '"') {
+      bytes.push(0x22); i += 1;
+    } else {
+      bytes.push(ch.charCodeAt(0) & 0xff);
+    }
+  }
+  return new Uint8Array(bytes);
+}
+
+/**
+ * 去掉字符串外层的双引号（如果用户从 redis-cli 直接复制）
+ */
+function stripOuterQuotes(str) {
+  const s = str.trim();
+  if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+    return s.slice(1, -1);
+  }
+  return s;
+}
+
+/**
+ * 解析 PHP 序列化数据
+ * @param {Uint8Array} buf
+ * @returns {{value: any, type: string}}
+ */
+function parsePhpSerialized(buf) {
+  let offset = 0;
+
+  const peek = () => buf[offset];
+  const readByte = () => buf[offset++];
+
+  const readUntil = (ch) => {
+    const code = ch.charCodeAt(0);
+    const start = offset;
+    while (offset < buf.length && buf[offset] !== code) offset++;
+    if (offset >= buf.length) throw new Error(`未找到分隔符 '${ch}'`);
+    const s = bytesToString(buf.slice(start, offset));
+    offset++; // 跳过分隔符
+    return s;
+  };
+
+  const bytesToString = (bytes) => {
+    // UTF-8 解码
+    return new TextDecoder('utf-8').decode(bytes);
+  };
+
+  // 跳过开头的 0x0b 前缀（PHP 7.4+ 特有）
+  let hasPrefix = false;
+  if (peek() === 0x0b) {
+    readByte();
+    hasPrefix = true;
+  }
+
+  if (offset >= buf.length) throw new Error('数据为空');
+  const type = String.fromCharCode(readByte());
+
+  let value;
+  switch (type) {
+    case 'N':
+      value = null;
+      if (peek() === 0x3b) readByte(); // ';'
+      break;
+
+    case 'b': {
+      const v = readUntil(';');
+      value = v === '1';
+      break;
+    }
+
+    case 'i': {
+      const v = readUntil(';');
+      value = parseInt(v, 10);
+      break;
+    }
+
+    case 'd': {
+      const v = readUntil(';');
+      value = parseFloat(v);
+      break;
+    }
+
+    case 's': {
+      // s:长度:"内容";
+      const lenStr = readUntil(':');
+      const len = parseInt(lenStr, 10);
+      if (peek() === 0x22) readByte(); // 开头引号 "
+      const str = bytesToString(buf.slice(offset, offset + len));
+      offset += len;
+      if (peek() === 0x22) readByte(); // 结尾引号 "
+      if (peek() === 0x3b) readByte(); // ';'
+      value = str;
+      break;
+    }
+
+    case 'J': {
+      // J<长度><JSON>
+      // 读取长度（varint）
+      let len = readByte();
+      if (len & 0x80) {
+        let shift = 7;
+        len &= 0x7f;
+        while (true) {
+          const b = readByte();
+          len |= (b & 0x7f) << shift;
+          if ((b & 0x80) === 0) break;
+          shift += 7;
+        }
+      }
+      const jsonStr = bytesToString(buf.slice(offset, offset + len));
+      offset += len;
+      value = JSON.parse(jsonStr);
+      break;
+    }
+
+    case 'a': {
+      // a:数量:{键值对}
+      const countStr = readUntil(':');
+      const count = parseInt(countStr, 10);
+      if (peek() === 0x7b) readByte(); // '{'
+      const arr = {};
+      let isList = true;
+      const keys = [];
+      for (let i = 0; i < count; i++) {
+        const k = parseValue();
+        const v = parseValue();
+        keys.push(k);
+        arr[k] = v;
+      }
+      if (peek() === 0x7d) readByte(); // '}'
+      // 判断是否是连续数字键 0..n-1
+      const isSeq = keys.every((k, idx) => k === idx);
+      value = isSeq ? keys.map(k => arr[k]) : arr;
+      break;
+    }
+
+    default:
+      throw new Error(`不支持的 PHP 序列化类型: '${type}' (0x${type.charCodeAt(0).toString(16)})`);
+  }
+
+  // 内部递归解析（用于数组）
+  function parseValue() {
+    return parsePhpSerialized(buf.slice(offset)).value;
+  }
+
+  // 跳过结尾的 0x0c（如果有前缀）
+  if (hasPrefix && peek() === 0x0c) {
+    readByte();
+  }
+
+  return { value, type };
+}
+
+/**
+ * 主入口：从用户输入字符串解析
+ */
+function parseInput(raw) {
+  const stripped = stripOuterQuotes(raw);
+  const bytes = unescapeToBytes(stripped);
+
+  // 先尝试按 PHP 序列化解析
+  try {
+    const { value, type } = parsePhpSerialized(bytes);
+    return { value, type };
+  } catch (e) {
+    throw new Error(`解析失败: ${e.message}`);
+  }
+}
+
+// ============ 页面交互 ============
+
+const inputEl = document.getElementById('input');
+const outputEl = document.getElementById('output');
+
+function render() {
+  const raw = inputEl.value;
+  if (!raw.trim()) {
+    outputEl.className = 'result-box';
+    outputEl.textContent = '等待输入...';
+    return;
+  }
+
+  try {
+    const { value, type } = parseInput(raw);
+    let display;
+    if (typeof value === 'string') {
+      display = JSON.stringify(value);
+    } else if (value === null) {
+      display = 'null';
+    } else if (typeof value === 'object') {
+      display = JSON.stringify(value, null, 2);
+    } else {
+      display = String(value);
+    }
+    outputEl.className = 'result-box ok';
+    outputEl.innerHTML = display +
+      ` <span class="type-hint">${type} 类型 · ${typeof value}</span>`;
+  } catch (e) {
+    outputEl.className = 'result-box err';
+    outputEl.textContent = '❌ ' + e.message;
+  }
+}
+
+inputEl.addEventListener('input', render);
+
+// 示例按钮
+document.querySelectorAll('.example-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    inputEl.value = btn.dataset.val;
+    render();
+  });
+});
+
+// 默认示例
+inputEl.value = '"\\x0bJ\\x011\\x0c"';
+render();
+</script>
+
+</body>
+</html>
