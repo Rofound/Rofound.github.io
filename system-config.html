@@ -758,6 +758,7 @@ body {
     </div>
     <div class="modal-footer">
       <button class="btn btn-default" id="exportBtn">导出到文本框</button>
+      <button class="btn btn-default" id="localDataClearBtn">清空</button>
       <button class="btn btn-default" id="copyIOBtn">复制</button>
       <button class="btn btn-danger" id="importBtn">导入覆盖</button>
     </div>
@@ -1845,6 +1846,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ioText').value = JSON.stringify(
       { envs: ENVS, scenes: SCENES }, null, 2);
     toast('已导出到文本框');
+  });
+  document.getElementById('localDataClearBtn').addEventListener('click', () => {
+    document.getElementById('ioText').value = '';
+    toast('已导清空文本框');
   });
   document.getElementById('copyIOBtn').addEventListener('click', () => {
     copyText(document.getElementById('ioText').value);
