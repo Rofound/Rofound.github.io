@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Hub - 场景管理器</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f7fa; color: #333; min-height: 100vh;
+}
+
+/* ---------- 顶部 ---------- */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff; padding: 14px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap; gap: 10px;
+}
+.header h1 { font-size: 18px; white-space: nowrap; }
+.header-tabs { display: flex; gap: 6px; }
+.header-tabs button {
+  padding: 8px 16px; border: none; border-radius: 6px;
+  background: rgba(255,255,255,.15); color: #fff;
+  cursor: pointer; font-size: 14px;
+}
+.header-tabs button.active { background: rgba(255,255,255,.35); font-weight: 600; }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.header-actions input {
+  padding: 8px 12px; border: none; border-radius: 6px;
+  width: 180px; font-size: 14px; outline: none;
+}
+.header-actions button {
+  padding: 8px 14px; border: none; border-radius: 6px;
+  background: rgba(255,255,255,.2); color: #fff;
+  cursor: pointer; font-size: 14px; white-space: nowrap;
+}
+.header-actions button:hover { background: rgba(255,255,255,.3); }
+.btn-primary { background: #4caf50 !important; }
+.btn-primary:hover { background: #43a047 !important; }
+
+/* 当前环境选择器 */
+.current-env-wrap {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.18);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.current-env-wrap label {
+  font-size: 12px; color: rgba(255,255,255,.85);
+  white-space: nowrap;
+}
+.current-env-select {
+  padding: 5px 8px; border: none; border-radius: 4px;
+  font-size: 13px; outline: none;
+  background: rgba(255,255,255,.9); color: #333;
+  cursor: pointer; max-width: 180px;
+}
+.current-env-select.switched {
+  background: #ffc107; font-weight: 600; color: #333;
+}
+.current-env-badge {
+  font-size: 11px;
+  background: #ffc107;
+  color: #333;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- 主布局 ---------- */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* 视图提示条 */
+.view-banner {
+  background: #fff8e1;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #8a6d00;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+.view-banner.show { display: flex; }
+.view-banner strong { color: #e65100; }
+.view-banner button {
+  margin-left: auto;
+  padding: 4px 10px;
+  border: none; border-radius: 5px;
+  background: #ffc107; color: #333;
+  cursor: pointer; font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---------- 筛选栏 ---------- */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.filter-bar .filter-label {
+  font-size: 13px;
+  color: #666;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.filter-btn {
+  padding: 6px 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.filter-btn:hover { background: #f5f5f5; }
+.filter-btn.active {
+  border-color: #667eea;
+  background: #667eea;
+  color: #fff;
+  font-weight: 600;
+}
+.filter-btn .dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+}
+.filter-btn .dot.green { background: #4caf50; }
+.filter-btn .dot.red { background: #ef5350; }
+.filter-btn .dot.gray { background: #ccc; }
+.filter-btn.active .dot.green { background: #fff; }
+.filter-btn.active .dot.red { background: #fff; }
+.filter-btn.active .dot.gray { background: #fff; }
+
+.filter-bar .spacer { flex: 1; }
+.filter-bar .reset-mark-btn {
+  padding: 6px 14px;
+  border: 1px solid #ef5350;
+  background: #fff;
+  color: #ef5350;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.filter-bar .reset-mark-btn:hover {
+  background: #ffebee;
+}
+
+/* ---------- Tab 视图 ---------- */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ---------- 卡片列表 ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: #fff; border-radius: 10px; padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  border-left: 4px solid #ccc;
+  transition: transform .15s, box-shadow .15s;
+  position: relative;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+
+/* 亮灯状态 */
+.card.marked-green {
+  background: #f1f8e9;
+  box-shadow: 0 2px 8px rgba(76,175,80,.15);
+}
+.card.marked-green:hover {
+  box-shadow: 0 6px 16px rgba(76,175,80,.25);
+}
+.card.marked-red {
+  background: #ffebee;
+  box-shadow: 0 2px 8px rgba(239,83,80,.15);
+}
+.card.marked-red:hover {
+  box-shadow: 0 6px 16px rgba(239,83,80,.25);
+}
+
+/* 亮灯指示灯 */
+.mark-light {
+  position: absolute;
+  top: 12px;
+  left: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #ddd;
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.mark-light:hover { transform: scale(1.25); }
+.mark-light.green { background: #4caf50; }
+.mark-light.red { background: #ef5350; }
+
+.card h3 {
+  font-size: 16px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+  padding-right: 90px;
+  flex-wrap: wrap;
+}
+.card .desc {
+  color: #888; font-size: 12px; margin-bottom: 10px;
+  min-height: 16px; word-break: break-word;
+}
+.card .meta {
+  font-size: 12px; color: #666; word-break: break-all;
+  background: #f8f8f8; padding: 8px; border-radius: 6px;
+  font-family: monospace; margin-bottom: 10px;
+}
+.card.marked-green .meta { background: #e8f5e9; }
+.card.marked-red .meta { background: #ffcdd2; }
+.card .meta .label { color: #999; }
+.card .meta .switched {
+  color: #e65100;
+  font-weight: 600;
+}
+.card-actions {
+  position: absolute; top: 12px; right: 12px;
+  display: flex; gap: 4px; opacity: 0;
+  transition: opacity .15s;
+}
+.card:hover .card-actions { opacity: 1; }
+.card-actions button {
+  width: 26px; height: 26px; border: none; border-radius: 5px;
+  background: #f0f0f0; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.card-actions button:hover { background: #e0e0e0; }
+.card-actions .danger:hover { background: #ffebee; color: #d32f2f; }
+.card-actions .copy:hover { background: #e3f2fd; color: #1976d2; }
+
+.card-footer {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.card-footer button {
+  padding: 6px 10px; border: 1px solid #ddd; background: #fff;
+  border-radius: 6px; cursor: pointer; font-size: 12px;
+  white-space: nowrap;
+}
+.card-footer button:hover { background: #f5f5f5; }
+.card-footer .go { background: #667eea; color: #fff; border-color: #667eea; }
+.card-footer .go:hover { background: #5568d3; }
+.card-footer .go-dev { background: #ff9800; color: #fff; border-color: #ff9800; }
+.card-footer .go-dev:hover { background: #f57c00; }
+.card-footer .copy-cred { background: #f0f0f0; }
+.card-footer .copy-dev { background: #fff7e6; border-color: #ffb74d; color: #e65100; }
+.card-footer .copy-dev:hover { background: #ffeacc; }
+.card-footer .mark-btn { background: #fff; border-color: #ccc; }
+.card-footer .mark-btn:hover { background: #f5f5f5; }
+.card-footer .mark-btn.mark-green { border-color: #4caf50; color: #2e7d32; }
+.card-footer .mark-btn.mark-green:hover { background: #e8f5e9; }
+.card-footer .mark-btn.mark-red { border-color: #ef5350; color: #c62828; }
+.card-footer .mark-btn.mark-red:hover { background: #ffebee; }
+
+.tag {
+  font-size: 11px; padding: 2px 8px; border-radius: 10px;
+  background: #e8eaf6; color: #3f51b5; font-weight: 500;
+  display: inline-block; margin: 0 4px 4px 0;
+}
+
+/* ---------- 空状态 ---------- */
+.empty {
+  text-align: center; padding: 60px 20px; color: #999;
+}
+.empty button {
+  margin-top: 16px; padding: 10px 24px; border: none;
+  border-radius: 8px; background: #667eea; color: #fff;
+  cursor: pointer; font-size: 14px;
+}
+
+/* ---------- 弹窗 ---------- */
+.modal-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200; padding: 20px;
+}
+.modal-mask.show { display: flex; }
+.modal {
+  background: #fff; border-radius: 12px; width: 100%;
+  max-width: 560px; max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.modal.wide { max-width: 680px; }
+.modal-header {
+  padding: 18px 22px; border-bottom: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h2 { font-size: 17px; }
+.modal-header button {
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; color: #999; line-height: 1;
+}
+.modal-body {
+  padding: 22px; overflow-y: auto; flex: 1;
+}
+.modal-footer {
+  padding: 16px 22px; border-top: 1px solid #eee;
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* ---------- 排序弹窗 ---------- */
+.sort-hint {
+  background: #e8f5e9;
+  border-left: 3px solid #4caf50;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #2e7d32;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.sort-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sort-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 4px solid #ccc;
+  border-radius: 8px;
+  cursor: grab;
+  transition: all .15s;
+  user-select: none;
+}
+.sort-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102,126,234,.15);
+}
+.sort-item.dragging {
+  opacity: .4;
+  cursor: grabbing;
+}
+.sort-item.drag-over {
+  border-top: 2px solid #667eea;
+  margin-top: -1px;
+}
+.sort-item .handle {
+  color: #bbb;
+  font-size: 18px;
+  line-height: 1;
+  padding-top: 2px;
+  flex-shrink: 0;
+  cursor: grab;
+}
+.sort-item .sort-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #667eea; color: #fff;
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sort-item .sort-content { flex: 1; min-width: 0; }
+.sort-item .sort-content h4 {
+  font-size: 14px; margin-bottom: 4px;
+  word-break: break-word;
+}
+.sort-item .sort-content .sort-desc {
+  font-size: 12px; color: #888;
+  word-break: break-word;
+  margin-bottom: 6px;
+  min-height: 14px;
+}
+.sort-item .sort-content .sort-tags {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.sort-empty {
+  text-align: center; color: #999;
+  padding: 40px 20px; font-size: 13px;
+}
+.sort-actions-bar {
+  display: flex; gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+.sort-actions-bar button {
+  padding: 6px 12px; border: 1px solid #ddd;
+  background: #fff; border-radius: 6px;
+  cursor: pointer; font-size: 12px;
+}
+.sort-actions-bar button:hover { background: #f5f5f5; }
+
+/* ---------- 表单 ---------- */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 13px; font-weight: 500;
+  margin-bottom: 6px; color: #444;
+}
+.field label .req { color: #e53935; margin-left: 2px; }
+.field input[type="text"],
+.field input[type="password"],
+.field input[type="url"],
+.field textarea,
+.field select {
+  width: 100%; padding: 9px 12px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 14px; outline: none;
+  font-family: inherit; background: #fff;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.1);
+}
+.field textarea { resize: vertical; min-height: 70px; }
+.field .hint { font-size: 11px; color: #999; margin-top: 4px; }
+.field .row { display: flex; gap: 6px; }
+.field .row input { flex: 1; min-width: 0; }
+.field .row button {
+  padding: 0 12px; border: 1px solid #ddd; background: #fff;
+  border-radius: 8px; cursor: pointer; font-size: 12px;
+  white-space: nowrap;
+}
+.field .row button:hover { background: #f5f5f5; }
+.field .row .btn-open-dev {
+  background: #ff9800; color: #fff; border-color: #ff9800;
+  padding: 8px 14px;
+}
+.field .row .btn-open-dev:hover { background: #f57c00; }
+
+.field-group {
+  display: flex; gap: 10px;
+}
+.field-group .field { flex: 1; }
+
+/* 预览框 */
+.preview {
+  background: #f0f4ff; border: 1px dashed #667eea;
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 12px; font-family: monospace;
+  color: #3f51b5; word-break: break-all;
+  margin-bottom: 16px;
+}
+.preview.dev {
+  background: #fff7e6; border-color: #ffb74d; color: #e65100;
+}
+.preview .label { color: #888; font-family: inherit; }
+
+/* ---------- 替换规则编辑器 ---------- */
+.replace-editor {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 10px;
+}
+.replace-row {
+  display: flex; gap: 6px; align-items: center;
+  margin-bottom: 6px;
+}
+.replace-row:last-child { margin-bottom: 0; }
+.replace-row .idx {
+  font-size: 11px; color: #999; width: 18px;
+  text-align: center; flex-shrink: 0;
+}
+.replace-row input {
+  flex: 1; min-width: 0;
+  padding: 7px 10px; border: 1px solid #ddd;
+  border-radius: 6px; font-size: 13px;
+  font-family: monospace; outline: none;
+  background: #fff;
+}
+.replace-row input:focus {
+  border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.1);
+}
+.replace-row .arrow {
+  font-size: 13px; color: #999; flex-shrink: 0;
+}
+.replace-row .del {
+  width: 26px; height: 26px; border: none; border-radius: 5px;
+  background: #f0f0f0; cursor: pointer; font-size: 12px;
+  flex-shrink: 0;
+}
+.replace-row .del:hover { background: #ffebee; color: #d32f2f; }
+.replace-empty {
+  color: #999; font-size: 12px;
+  padding: 8px 4px; text-align: center;
+}
+.replace-add {
+  margin-top: 8px; width: 100%;
+  padding: 6px 10px; border: 1px dashed #ccc;
+  background: #fff; border-radius: 6px;
+  cursor: pointer; font-size: 12px; color: #666;
+}
+.replace-add:hover { border-color: #667eea; color: #667eea; background: #f0f4ff; }
+
+/* 按钮 */
+.btn {
+  padding: 9px 18px; border: none; border-radius: 8px;
+  cursor: pointer; font-size: 14px; font-weight: 500;
+}
+.btn-default { background: #f0f0f0; color: #333; }
+.btn-default:hover { background: #e0e0e0; }
+.btn-primary { background: #667eea; color: #fff; }
+.btn-primary:hover { background: #5568d3; }
+.btn-danger { background: #ef5350; color: #fff; }
+.btn-danger:hover { background: #e53935; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: #333; color: #fff; padding: 10px 20px; border-radius: 6px;
+  font-size: 13px; opacity: 0; transition: opacity .3s;
+  pointer-events: none; z-index: 1000;
+}
+.toast.show { opacity: 1; }
+
+/* 移动端 */
+@media (max-width: 700px) {
+  .header { padding: 12px 14px; }
+  .header-actions input { width: 100%; }
+  .container { padding: 14px; }
+  .field-group { flex-direction: column; gap: 0; }
+  .card-actions { opacity: 1; }
+  .current-env-wrap { width: 100%; }
+  .current-env-select { flex: 1; max-width: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>🚀 Dev Hub</h1>
+  <div class="header-tabs">
+    <button data-tab="scenes" class="active">📋 测试场景</button>
+    <button data-tab="envs">🌐 环境管理</button>
+  </div>
+  <div class="header-actions">
+    <input type="text" id="searchInput" placeholder="搜索场景 / 环境..." />
+
+    <div class="current-env-wrap">
+      <label>当前环境：</label>
+      <select id="currentEnvSelect" class="current-env-select" title="切换后所有场景的地址都基于此环境拼装（不修改原数据）"></select>
+      <span id="currentEnvBadge" class="current-env-badge" style="display:none;">已切换</span>
+    </div>
+
+    <button id="sortBtn">🔀 排序</button>
+    <button id="newBtn" class="btn-primary">+ 新建</button>
+    <button id="ioBtn">⚙ 导入导出</button>
+  </div>
+</header>
+
+<main class="container">
+  <div class="view-banner" id="viewBanner">
+    <span>🔀 当前正在用 <strong id="viewBannerEnv"></strong> 环境查看所有场景（仅视图层，不修改原始数据）</span>
+    <button id="resetViewEnv">恢复默认（用场景自己的环境）</button>
+  </div>
+
+  <!-- 筛选栏 -->
+  <div class="filter-bar" id="filterBar" style="display:none;">
+    <span class="filter-label">🚦 测试状态：</span>
+    <button class="filter-btn active" data-filter="all">
+      全部 <span id="count-all">(0)</span>
+    </button>
+    <button class="filter-btn" data-filter="untested">
+      <span class="dot gray"></span> 未测试 <span id="count-untested">(0)</span>
+    </button>
+    <button class="filter-btn" data-filter="passed">
+      <span class="dot green"></span> 已通过 <span id="count-passed">(0)</span>
+    </button>
+    <button class="filter-btn" data-filter="failed">
+      <span class="dot red"></span> 有问题 <span id="count-failed">(0)</span>
+    </button>
+    <span class="spacer"></span>
+    <button class="reset-mark-btn" id="resetAllMarks">↺ 重置所有标记</button>
+  </div>
+
+  <section id="view-scenes" class="view active">
+    <div id="sceneList" class="card-grid"></div>
+  </section>
+
+  <section id="view-envs" class="view">
+    <div id="envList" class="card-grid"></div>
+  </section>
+</main>
+
+<!-- ================= 排序弹窗 ================= -->
+<div class="modal-mask" id="sortModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h2>🔀 拖动排序场景</h2>
+      <button data-close="sortModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sort-hint">
+        💡 按住卡片上下拖动即可调整顺序。<br/>
+        保存后场景列表将按此顺序排列。
+      </div>
+      <div class="sort-list" id="sortList"></div>
+      <div class="sort-actions-bar" id="sortExtraBar">
+        <button id="sortByEnvBtn">按环境分组</button>
+        <button id="sortByNameBtn">按名称排序</button>
+        <button id="sortByTimeBtn">按创建时间排序</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" data-close="sortModal">取消</button>
+      <button class="btn btn-primary" id="saveSortBtn">保存排序</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 场景编辑弹窗 ================= -->
+<div class="modal-mask" id="sceneModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="sceneModalTitle">新建场景</h2>
+      <button data-close="sceneModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>场景名称 <span class="req">*</span></label>
+        <input type="text" id="f-scene-name" placeholder="例如：登录流程-正常用例" />
+      </div>
+      <div class="field">
+        <label>场景描述</label>
+        <textarea id="f-scene-desc" placeholder="描述这个场景要测试什么"></textarea>
+      </div>
+      <div class="field">
+        <label>所属环境 <span class="req">*</span></label>
+        <select id="f-scene-env"></select>
+      </div>
+      <div class="field">
+        <label>页面路径</label>
+        <input type="text" id="f-scene-path" placeholder="例如：/sso/login 或 /dashboard" />
+        <div class="hint">只填环境前缀之后的业务路径，环境的前缀会自动拼接</div>
+      </div>
+      <div class="field">
+        <label>URL 参数（可选）</label>
+        <input type="text" id="f-scene-params" placeholder='例如：env=uat&clientId=web' />
+      </div>
+      <div class="field">
+        <label>完整预览</label>
+        <div class="preview" id="f-scene-preview">—</div>
+      </div>
+      <div class="field">
+        <label>开发地址预览</label>
+        <div class="preview dev" id="f-scene-dev-preview">—</div>
+        <div class="row" style="margin-top:6px;">
+          <button type="button" class="btn-open-dev" id="openDevPreview">▶ 用开发地址打开</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>用户名</label>
+          <div class="row">
+            <input type="text" id="f-scene-user" placeholder="登录账号" />
+            <button type="button" id="copySceneUser">复制</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>密码</label>
+          <div class="row">
+            <input type="password" id="f-scene-pass" placeholder="登录密码" />
+            <button type="button" id="toggleScenePass">👁</button>
+            <button type="button" id="copyScenePass">复制</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>标签（逗号分隔）</label>
+        <input type="text" id="f-scene-tags" placeholder="例如：登录,SSO,冒烟" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" data-close="sceneModal">取消</button>
+      <button class="btn btn-primary" id="saveSceneBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 环境编辑弹窗 ================= -->
+<div class="modal-mask" id="envModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="envModalTitle">新建环境</h2>
+      <button data-close="envModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>环境名称 <span class="req">*</span></label>
+        <input type="text" id="f-env-name" placeholder="例如：UAT 环境" />
+      </div>
+      <div class="field">
+        <label>基础域名 <span class="req">*</span></label>
+        <input type="url" id="f-env-base" placeholder="例如：https://xx.com" />
+        <div class="hint">不含末尾斜杠，例如 https://uat.example.com</div>
+      </div>
+      <div class="field">
+        <label>路径前缀</label>
+        <input type="text" id="f-env-prefix" placeholder="例如：/sso-uat/" />
+        <div class="hint">所有场景的公共前缀，会自动拼在域名和场景路径之间</div>
+      </div>
+      <div class="field">
+        <label>环境说明</label>
+        <input type="text" id="f-env-desc" placeholder="例如：UAT 联调环境" />
+      </div>
+      <div class="field">
+        <label>色条颜色</label>
+        <input type="text" id="f-env-color" placeholder="#667eea" />
+        <div class="hint">十六进制色值，用于卡片左侧色条</div>
+      </div>
+
+      <div class="field">
+        <label>开发地址替换规则</label>
+        <div class="replace-editor" id="replaceEditor"></div>
+        <button type="button" class="replace-add" id="addReplaceRule">+ 添加替换规则</button>
+        <div class="hint">
+          依次执行：先执行第 1 条，结果再喂给第 2 条……<br/>
+          场景卡片上的「复制开发地址 / 打开开发」会按这里的规则替换后使用
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" data-close="envModal">取消</button>
+      <button class="btn btn-primary" id="saveEnvBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 导入导出弹窗 ================= -->
+<div class="modal-mask" id="ioModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>导入 / 导出配置</h2>
+      <button data-close="ioModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>配置 JSON</label>
+        <textarea id="ioText" style="min-height:280px;font-family:monospace;font-size:12px;"></textarea>
+        <div class="hint">导出时复制走；导入时粘贴进来点"导入覆盖"</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" id="exportBtn">导出到文本框</button>
+      <button class="btn btn-default" id="copyIOBtn">复制</button>
+      <button class="btn btn-danger" id="importBtn">导入覆盖</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+ *  数据层
+ * ============================================================ */
+const LS_ENV  = 'dev-hub-envs';
+const LS_SCENE = 'dev-hub-scenes';
+const LS_VIEW_ENV = 'dev-hub-view-env';
+
+const DEFAULT_ENVS = [
+  { id: 'e1', name: 'UAT 环境', base: 'https://xx.com',    prefix: '/sso-uat/',   desc: 'UAT 联调环境',  color: '#f0ad4e',
+    replaces: [{ from: '/sso-uat/', to: '/sso-dev/' }] },
+  { id: 'e2', name: '生产环境', base: 'https://xx1.com',   prefix: '/prod-api/',  desc: '生产环境（谨慎）', color: '#d9534f',
+    replaces: [] },
+  { id: 'e3', name: '本地开发', base: 'http://localhost:8080', prefix: '/',       desc: '本机服务',      color: '#5cb85c',
+    replaces: [] }
+];
+const DEFAULT_SCENES = [
+  {
+    id: 's1',
+    name: '登录-正常用例',
+    desc: '验证 SSO 用户使用正确账号密码可登录成功',
+    envId: 'e1',
+    path: '/sso/login',
+    params: 'env=uat&clientId=web-uat',
+    user: 'uat_user',
+    pass: 'uat_password_123',
+    tags: ['登录','SSO','冒烟'],
+    mark: '',              // '' 未测 | 'green' 通过 | 'red' 有问题
+    order: 1,
+    createdAt: Date.now()
+  }
+];
+
+function loadData() {
+  let envs, scenes;
+  try { envs = JSON.parse(localStorage.getItem(LS_ENV) || 'null'); }
+  catch { envs = null; }
+  try { scenes = JSON.parse(localStorage.getItem(LS_SCENE) || 'null'); }
+  catch { scenes = null; }
+
+  if (!envs)  { envs = DEFAULT_ENVS;  saveEnvs(envs); }
+  if (!scenes){ scenes = DEFAULT_SCENES; saveScenes(scenes); }
+
+  envs.forEach(e => { if (!Array.isArray(e.replaces)) e.replaces = []; });
+
+  const sorted = [...scenes].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  sorted.forEach((s, i) => {
+    if (typeof s.order !== 'number') s.order = i + 1;
+    if (typeof s.mark !== 'string') s.mark = '';
+  });
+  saveScenes(scenes);
+
+  return { envs, scenes };
+}
+
+function saveEnvs(list)  { localStorage.setItem(LS_ENV,   JSON.stringify(list)); }
+function saveScenes(list){ localStorage.setItem(LS_SCENE, JSON.stringify(list)); }
+
+let ENVS  = [];
+let SCENES = [];
+({ envs: ENVS, scenes: SCENES } = loadData());
+
+/* ---------- 当前视图环境 ---------- */
+let VIEW_ENV_ID = localStorage.getItem(LS_VIEW_ENV) || '';
+
+function setViewEnv(id) {
+  VIEW_ENV_ID = id || '';
+  if (VIEW_ENV_ID) localStorage.setItem(LS_VIEW_ENV, VIEW_ENV_ID);
+  else localStorage.removeItem(LS_VIEW_ENV);
+  refreshCurrentEnvSelect();
+  refreshViewBanner();
+  renderScenes(document.getElementById('searchInput').value);
+}
+
+function effectiveEnv(scene) {
+  if (VIEW_ENV_ID) {
+    const v = getEnv(VIEW_ENV_ID);
+    if (v) return v;
+  }
+  return getEnv(scene.envId);
+}
+
+/* ---------- 筛选状态 ---------- */
+let MARK_FILTER = 'all';   // 'all' | 'untested' | 'passed' | 'failed'
+
+/* ============================================================
+ *  工具函数
+ * ============================================================ */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function makeCopyName(baseName, existsFn) {
+  let candidate = baseName + '-副本';
+  if (!existsFn(candidate)) return candidate;
+  let i = 2;
+  while (existsFn(baseName + '-副本' + i)) i++;
+  return baseName + '-副本' + i;
+}
+
+/* ---------- URL 拼接 ---------- */
+function buildUrl(scene, envOverride = null) {
+  const env = envOverride || effectiveEnv(scene);
+  if (!env) return '';
+
+  let base = (env.base || '').trim().replace(/\/+$/, '');
+
+  let prefix = (env.prefix || '').trim();
+  if (prefix === '/') prefix = '';
+  if (prefix) {
+    if (!prefix.startsWith('/')) prefix = '/' + prefix;
+    prefix = prefix.replace(/\/+$/, '');
+  }
+
+  let path = (scene.path || '').trim();
+  if (path) {
+    if (!path.startsWith('/')) path = '/' + path;
+    path = path.replace(/\/+$/, '');
+  }
+
+  let url = base + prefix + path;
+  if (!url) return '';
+
+  let params = (scene.params || '').trim();
+  if (params) {
+    if (params.startsWith('?')) params = params.slice(1);
+    url += (url.includes('?') ? '&' : '?') + params;
+  }
+  return url;
+}
+
+function buildDevUrl(scene) {
+  let url = buildUrl(scene);
+  if (!url) return '';
+
+  const env = effectiveEnv(scene);
+  const rules = (env?.replaces || []).filter(r => r.from);
+  if (!rules.length) return '';
+
+  for (const r of rules) {
+    url = url.replace(r.from, r.to ?? '');
+  }
+  return url;
+}
+
+function getEnv(id) { return ENVS.find(e => e.id === id); }
+
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => toast('已复制 ✓'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制 ✓'); }
+    catch { toast('复制失败'); }
+    document.body.removeChild(ta);
+  }
+}
+
+let toastTimer;
+function toast(msg) {
+  let el = document.querySelector('.toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+/* ============================================================
+ *  标记相关
+ * ============================================================ */
+function setMark(sceneId, mark) {
+  const s = SCENES.find(x => x.id === sceneId);
+  if (!s) return;
+  s.mark = s.mark === mark ? '' : mark;   // 点同一个 = 取消
+  saveScenes(SCENES);
+  renderScenes(document.getElementById('searchInput').value);
+  refreshFilterCounts();
+}
+
+function resetAllMarks() {
+  if (!confirm('确认重置所有场景的测试标记？')) return;
+  SCENES.forEach(s => { s.mark = ''; });
+  saveScenes(SCENES);
+  renderScenes(document.getElementById('searchInput').value);
+  refreshFilterCounts();
+  toast('已重置所有标记');
+}
+
+function refreshFilterCounts() {
+  const total = SCENES.length;
+  const untested = SCENES.filter(s => s.mark !== 'green' && s.mark !== 'red').length;
+  const passed = SCENES.filter(s => s.mark === 'green').length;
+  const failed = SCENES.filter(s => s.mark === 'red').length;
+
+  document.getElementById('count-all').textContent      = `(${total})`;
+  document.getElementById('count-untested').textContent = `(${untested})`;
+  document.getElementById('count-passed').textContent   = `(${passed})`;
+  document.getElementById('count-failed').textContent   = `(${failed})`;
+
+  // 筛选栏是否显示（有场景才显示）
+  document.getElementById('filterBar').style.display = total ? 'flex' : 'none';
+}
+
+function setMarkFilter(filter) {
+  MARK_FILTER = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === filter);
+  });
+  renderScenes(document.getElementById('searchInput').value);
+}
+
+/* ============================================================
+ *  当前环境相关 UI 刷新
+ * ============================================================ */
+function refreshCurrentEnvSelect() {
+  const sel = document.getElementById('currentEnvSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">（用场景自己的环境）</option>' +
+    ENVS.map(e => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+  sel.value = VIEW_ENV_ID;
+
+  const badge = document.getElementById('currentEnvBadge');
+  if (VIEW_ENV_ID) {
+    sel.classList.add('switched');
+    badge.style.display = '';
+  } else {
+    sel.classList.remove('switched');
+    badge.style.display = 'none';
+  }
+}
+
+function refreshViewBanner() {
+  const banner = document.getElementById('viewBanner');
+  const envNameEl = document.getElementById('viewBannerEnv');
+  if (!banner) return;
+  if (VIEW_ENV_ID) {
+    const env = getEnv(VIEW_ENV_ID);
+    if (env) {
+      envNameEl.textContent = env.name;
+      banner.classList.add('show');
+      return;
+    }
+  }
+  banner.classList.remove('show');
+}
+
+/* ============================================================
+ *  排序：拖动弹窗
+ * ============================================================ */
+let sortDraft = [];
+
+function openSortModal() {
+  if (!SCENES.length) {
+    toast('没有场景可以排序');
+    return;
+  }
+
+  sortDraft = [...SCENES]
+    .sort((a, b) => {
+      const oa = typeof a.order === 'number' ? a.order : 9999;
+      const ob = typeof b.order === 'number' ? b.order : 9999;
+      if (oa !== ob) return oa - ob;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    })
+    .map(s => s.id);
+
+  renderSortList();
+  document.getElementById('sortModal').classList.add('show');
+}
+
+function renderSortList() {
+  const wrap = document.getElementById('sortList');
+  if (!sortDraft.length) {
+    wrap.innerHTML = '<div class="sort-empty">没有场景</div>';
+    return;
+  }
+
+  wrap.innerHTML = sortDraft.map((id, idx) => {
+    const s = SCENES.find(x => x.id === id);
+    if (!s) return '';
+    const env = getEnv(s.envId);
+    const color = env?.color || '#ccc';
+    const tags = (s.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+    const markClass = s.mark === 'green' ? 'marked-green' : (s.mark === 'red' ? 'marked-red' : '');
+    return `
+      <div class="sort-item ${markClass}" draggable="true" data-id="${s.id}" data-idx="${idx}"
+           style="border-left-color:${color}">
+        <span class="handle" title="拖动">⠿</span>
+        <span class="sort-num">${idx + 1}</span>
+        <div class="sort-content">
+          <h4>${escapeHtml(s.name)}</h4>
+          <div class="sort-desc">${escapeHtml(s.desc || '（无描述）')}</div>
+          ${tags ? `<div class="sort-tags">${tags}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  const items = wrap.querySelectorAll('.sort-item');
+  let dragEl = null;
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragEl = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', item.dataset.id); } catch {}
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      wrap.querySelectorAll('.sort-item').forEach(x => x.classList.remove('drag-over'));
+      dragEl = null;
+    });
+
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!dragEl || dragEl === item) return;
+      item.classList.add('drag-over');
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    item.addEventListener('dragleave', () => {
+      item.classList.remove('drag-over');
+    });
+
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (!dragEl || dragEl === item) return;
+
+      const fromId = dragEl.dataset.id;
+      const toId   = item.dataset.id;
+      const fromIdx = sortDraft.indexOf(fromId);
+      const toIdx   = sortDraft.indexOf(toId);
+      if (fromIdx < 0 || toIdx < 0) return;
+
+      sortDraft.splice(fromIdx, 1);
+      sortDraft.splice(toIdx, 0, fromId);
+
+      renderSortList();
+    });
+  });
+}
+
+function saveSortOrder() {
+  sortDraft.forEach((id, idx) => {
+    const s = SCENES.find(x => x.id === id);
+    if (s) s.order = idx + 1;
+  });
+  saveScenes(SCENES);
+  renderScenes(document.getElementById('searchInput').value);
+  document.getElementById('sortModal').classList.remove('show');
+  toast('排序已保存');
+}
+
+function sortByEnv() {
+  sortDraft.sort((a, b) => {
+    const sa = SCENES.find(x => x.id === a);
+    const sb = SCENES.find(x => x.id === b);
+    if (!sa || !sb) return 0;
+    const ea = getEnv(sa.envId)?.name || '';
+    const eb = getEnv(sb.envId)?.name || '';
+    if (ea !== eb) return ea.localeCompare(eb, 'zh');
+    return (sa.name || '').localeCompare(sb.name || '', 'zh');
+  });
+  renderSortList();
+}
+
+function sortByName() {
+  sortDraft.sort((a, b) => {
+    const sa = SCENES.find(x => x.id === a);
+    const sb = SCENES.find(x => x.id === b);
+    if (!sa || !sb) return 0;
+    return (sa.name || '').localeCompare(sb.name || '', 'zh');
+  });
+  renderSortList();
+}
+
+function sortByTime() {
+  sortDraft.sort((a, b) => {
+    const sa = SCENES.find(x => x.id === a);
+    const sb = SCENES.find(x => x.id === b);
+    if (!sa || !sb) return 0;
+    return (sb.createdAt || 0) - (sa.createdAt || 0);
+  });
+  renderSortList();
+}
+
+/* ============================================================
+ *  渲染：场景列表
+ * ============================================================ */
+function renderScenes(filter = '') {
+  const wrap = document.getElementById('sceneList');
+  const kw = filter.trim().toLowerCase();
+  const list = SCENES
+    .filter(s => {
+      // 亮灯筛选
+      if (MARK_FILTER === 'untested' && (s.mark === 'green' || s.mark === 'red')) return false;
+      if (MARK_FILTER === 'passed'   && s.mark !== 'green') return false;
+      if (MARK_FILTER === 'failed'   && s.mark !== 'red')   return false;
+
+      // 关键字筛选
+      if (!kw) return true;
+      const env = getEnv(s.envId);
+      return s.name.toLowerCase().includes(kw)
+          || (s.desc || '').toLowerCase().includes(kw)
+          || (env && env.name.toLowerCase().includes(kw))
+          || (s.tags || []).some(t => t.toLowerCase().includes(kw))
+          || buildUrl(s).toLowerCase().includes(kw);
+    })
+    .sort((a, b) => {
+      const oa = typeof a.order === 'number' ? a.order : 9999;
+      const ob = typeof b.order === 'number' ? b.order : 9999;
+      if (oa !== ob) return oa - ob;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+
+  if (!list.length) {
+    wrap.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div style="font-size:40px;margin-bottom:10px">📋</div>
+        <div>没有匹配的场景</div>
+      </div>`;
+    refreshFilterCounts();
+    return;
+  }
+
+  wrap.innerHTML = list.map(s => {
+    const env = effectiveEnv(s);
+    const origEnv = getEnv(s.envId);
+    const color = env?.color || '#ccc';
+    const url = buildUrl(s);
+    const devUrl = buildDevUrl(s);
+    const tags = (s.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+
+    const envLabel = VIEW_ENV_ID && origEnv && origEnv.id !== VIEW_ENV_ID
+      ? `<span class="switched">${escapeHtml(env?.name || '')}（原：${escapeHtml(origEnv.name)}）</span>`
+      : escapeHtml(env?.name || '未知环境');
+
+    // 亮灯 class
+    const markClass = s.mark === 'green' ? 'marked-green' : (s.mark === 'red' ? 'marked-red' : '');
+    const lightClass = s.mark === 'green' ? 'green' : (s.mark === 'red' ? 'red' : '');
+
+    // 底部标记按钮状态
+    const greenBtnClass = s.mark === 'green' ? 'mark-btn mark-green' : 'mark-btn';
+    const redBtnClass   = s.mark === 'red'   ? 'mark-btn mark-red'   : 'mark-btn';
+
+    return `
+      <div class="card ${markClass}" style="border-left-color:${color}" data-id="${s.id}">
+        <div class="mark-light ${lightClass}"
+             title="点击循环切换：未测 → 通过 → 有问题 → 未测"
+             data-act="cycleMark"></div>
+        <div class="card-actions">
+          <button title="复制为新场景" class="copy" data-act="duplicate">⧉</button>
+          <button title="编辑" data-act="edit">✎</button>
+          <button title="删除" class="danger" data-act="del">🗑</button>
+        </div>
+        <h3>${escapeHtml(s.name)}</h3>
+        <div class="desc">${escapeHtml(s.desc || '（无描述）')}</div>
+        <div class="meta">
+          <span class="label">环境：</span>${envLabel}<br/>
+          <span class="label">地址：</span>${escapeHtml(url)}${devUrl ? `<br/><span class="label">开发：</span>${escapeHtml(devUrl)}` : ''}
+        </div>
+        ${tags ? `<div style="margin-bottom:10px">${tags}</div>` : ''}
+        <div class="card-footer">
+          <button class="go" data-act="open">▶ 打开</button>
+          <button class="go-dev" data-act="openDev">▶ 打开开发</button>
+          <button class="${greenBtnClass}" data-act="markGreen" title="标记为测试通过">
+            ${s.mark === 'green' ? '✓ 已通过' : '标记通过'}
+          </button>
+          <button class="${redBtnClass}" data-act="markRed" title="标记为有问题">
+            ${s.mark === 'red' ? '✕ 有问题' : '标记问题'}
+          </button>
+          <button data-act="copyUrl">复制地址</button>
+          <button class="copy-dev" data-act="copyDevUrl">复制开发地址</button>
+          <button class="copy-cred" data-act="copyUser">复制账号</button>
+          <button class="copy-cred" data-act="copyPass">复制密码</button>
+          <button class="copy-cred" data-act="copyCred">复制账密</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.card').forEach(card => {
+    const id = card.dataset.id;
+    card.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const act = btn.dataset.act;
+        const scene = SCENES.find(x => x.id === id);
+        if (!scene) return;
+
+        if (act === 'edit') openSceneModal(scene);
+        else if (act === 'duplicate') duplicateScene(scene);
+        else if (act === 'del') {
+          if (confirm(`确认删除场景「${scene.name}」？`)) {
+            SCENES = SCENES.filter(x => x.id !== id);
+            saveScenes(SCENES);
+            renderScenes(document.getElementById('searchInput').value);
+            renderEnvs(document.getElementById('searchInput').value);
+            refreshFilterCounts();
+            toast('已删除');
+          }
+        }
+        else if (act === 'open') {
+          const url = buildUrl(scene);
+          if (url) window.open(url, '_blank');
+          else toast('环境不存在，无法打开');
+        }
+        else if (act === 'openDev') {
+          const dev = buildDevUrl(scene);
+          if (!dev) return toast('该环境未配置替换规则，请到「环境管理」里配置');
+          window.open(dev, '_blank');
+        }
+        else if (act === 'copyUrl') {
+          copyText(buildUrl(scene));
+        }
+        else if (act === 'copyDevUrl') {
+          const dev = buildDevUrl(scene);
+          if (!dev) return toast('该环境未配置替换规则，请到「环境管理」里配置');
+          copyText(dev);
+        }
+        else if (act === 'copyUser') {
+          if (!scene.user) return toast('该场景无用户名');
+          copyText(scene.user);
+        }
+        else if (act === 'copyPass') {
+
+          const isProject = scene.path.split('').filter(item => item.includes('/')).length == 2
+          if (isProject) {
+const initial = `Hello World,hello\n你好!,world`;
+            let dataText = localStorage.getItem("base64-data") || initial;
+            let rows = parse(dataText);
+            let v = scene.path.split('/')[1].trim();
+            let m = rows.filter((x) => x.b === enc(v));
+            let p = encodeURIComponent(dec(m[0].a))
+            copyText(p);
+
+            function parse(text) {
+              return text
+                .split(/\r?\n/)
+                .map((x) => x.trim())
+                .filter(Boolean)
+                .flatMap((x) => {
+                  let i = x.indexOf(",");
+                  return i < 0
+                    ? []
+                    : [{ a: enc(x.slice(0, i).trim()), b: enc(x.slice(i + 1).trim()) }];
+                });
+            }
+            function enc(x) {
+              return btoa(unescape(encodeURIComponent(x)));
+            }
+
+            function dec(x) {
+              try {
+                return decodeURIComponent(escape(atob(x)));
+              } catch {
+                return "[invalid Base64 UTF-8]";
+              }
+            };
+          } else {
+            const initial = `Hello World,hello\n你好!,world`;
+            let dataText = localStorage.getItem("base64-data") || initial;
+            let rows = parse(dataText);
+            let v = scene.path.split('/')[1].trim();
+            let m = rows.filter((x) => x.b === enc(v));
+            let p = (dec(m[0].a))
+            copyText(p);
+
+            function parse(text) {
+              return text
+                .split(/\r?\n/)
+                .map((x) => x.trim())
+                .filter(Boolean)
+                .flatMap((x) => {
+                  let i = x.indexOf(",");
+                  return i < 0
+                    ? []
+                    : [{ a: enc(x.slice(0, i).trim()), b: enc(x.slice(i + 1).trim()) }];
+                });
+            }
+            function enc(x) {
+              return btoa(unescape(encodeURIComponent(x)));
+            }
+
+            function dec(x) {
+              try {
+                return decodeURIComponent(escape(atob(x)));
+              } catch {
+                return "[invalid Base64 UTF-8]";
+              }
+            };
+          }
+          if (!scene.pass) return toast('该场景无密码');
+          copyText(scene.pass);
+        }
+        else if (act === 'copyCred') {
+          if (!scene.user && !scene.pass) return toast('该场景无账密');
+          copyText(`用户名: ${scene.user || ''}\n密码: ${scene.pass || ''}`);
+        }
+        // 标记
+        else if (act === 'markGreen') {
+          setMark(scene.id, 'green');
+        }
+        else if (act === 'markRed') {
+          setMark(scene.id, 'red');
+        }
+        else if (act === 'cycleMark') {
+          // 循环切换：'' → green → red → ''
+          const next = scene.mark === '' ? 'green'
+                     : scene.mark === 'green' ? 'red'
+                     : '';
+          scene.mark = next;
+          saveScenes(SCENES);
+          renderScenes(document.getElementById('searchInput').value);
+          refreshFilterCounts();
+        }
+      });
+    });
+  });
+
+  refreshFilterCounts();
+}
+
+function duplicateScene(src) {
+  const newName = makeCopyName(src.name, n => SCENES.some(s => s.name === n));
+  const maxOrder = SCENES.reduce((m, s) => Math.max(m, s.order || 0), 0);
+  const draft = { ...src, id: null, name: newName, order: maxOrder + 1, mark: '', createdAt: null };
+  openSceneModal(draft, true);
+  toast('已复制到新建窗口，改完点保存');
+}
+
+/* ============================================================
+ *  渲染：环境列表
+ * ============================================================ */
+function renderEnvs(filter = '') {
+  const wrap = document.getElementById('envList');
+  const kw = filter.trim().toLowerCase();
+  const list = ENVS.filter(e => {
+    if (!kw) return true;
+    return e.name.toLowerCase().includes(kw)
+        || e.base.toLowerCase().includes(kw)
+        || (e.desc || '').toLowerCase().includes(kw);
+  });
+
+  if (!list.length) {
+    wrap.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div style="font-size:40px;margin-bottom:10px">🌐</div>
+        <div>还没有环境</div>
+        <button onclick="openEnvModal()">+ 新建第一个环境</button>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(e => {
+    const sceneCount = SCENES.filter(s => s.envId === e.id).length;
+    const ruleCount = (e.replaces || []).filter(r => r.from).length;
+    const isCurrent = VIEW_ENV_ID === e.id;
+    return `
+      <div class="card" style="border-left-color:${e.color || '#ccc'}${isCurrent ? ';box-shadow:0 0 0 2px #ffc107' : ''}" data-id="${e.id}">
+        <div class="card-actions">
+          <button title="复制为新环境" class="copy" data-act="duplicate">⧉</button>
+          <button title="编辑" data-act="edit">✎</button>
+          <button title="删除" class="danger" data-act="del">🗑</button>
+        </div>
+        <h3>${escapeHtml(e.name)} ${isCurrent ? '<span class="current-env-badge">当前使用中</span>' : ''}</h3>
+        <div class="desc">${escapeHtml(e.desc || '（无说明）')}</div>
+        <div class="meta">
+          <span class="label">域名：</span>${escapeHtml(e.base)}<br/>
+          <span class="label">前缀：</span>${escapeHtml(e.prefix || '/')}<br/>
+          <span class="label">关联场景：</span>${sceneCount} 个<br/>
+          <span class="label">替换规则：</span>${ruleCount} 条
+        </div>
+        <div class="card-footer">
+          <button class="go" data-act="openBase">▶ 打开首页</button>
+          <button class="${isCurrent ? '' : 'go-dev'}" data-act="useAsViewEnv" ${isCurrent ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>
+            ${isCurrent ? '✓ 正在使用' : '🔀 设为当前环境'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.card').forEach(card => {
+    const id = card.dataset.id;
+    card.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        const act = btn.dataset.act;
+        const env = ENVS.find(x => x.id === id);
+        if (!env) return;
+
+        if (act === 'edit') openEnvModal(env);
+        else if (act === 'duplicate') duplicateEnv(env);
+        else if (act === 'del') {
+          const used = SCENES.filter(s => s.envId === id);
+          const msg = used.length
+            ? `该环境下有 ${used.length} 个场景，删除后场景将失效。确认删除？`
+            : `确认删除环境「${env.name}」？`;
+          if (confirm(msg)) {
+            ENVS = ENVS.filter(x => x.id !== id);
+            saveEnvs(ENVS);
+            if (VIEW_ENV_ID === id) {
+              VIEW_ENV_ID = '';
+              localStorage.removeItem(LS_VIEW_ENV);
+            }
+            renderEnvs(document.getElementById('searchInput').value);
+            renderScenes(document.getElementById('searchInput').value);
+            refreshCurrentEnvSelect();
+            refreshViewBanner();
+            toast('已删除');
+          }
+        }
+        else if (act === 'openBase') {
+          window.open(env.base, '_blank');
+        }
+        else if (act === 'useAsViewEnv') {
+          setViewEnv(env.id);
+          toast(`已切换视图环境：${env.name}`);
+        }
+      });
+    });
+  });
+}
+
+function duplicateEnv(src) {
+  const newName = makeCopyName(src.name, n => ENVS.some(e => e.name === n));
+  const draft = { ...src, id: null, name: newName };
+  openEnvModal(draft, true);
+  toast('已复制到新建窗口，改完点保存');
+}
+
+/* ============================================================
+ *  场景弹窗
+ * ============================================================ */
+let editingSceneId = null;
+
+function fillEnvSelect(selectedId) {
+  const sel = document.getElementById('f-scene-env');
+  if (!ENVS.length) {
+    sel.innerHTML = '<option value="">（请先创建环境）</option>';
+    return;
+  }
+  sel.innerHTML = ENVS.map(e =>
+    `<option value="${e.id}" ${e.id === selectedId ? 'selected' : ''}>${escapeHtml(e.name)} — ${escapeHtml(e.base)}${escapeHtml(e.prefix || '')}</option>`
+  ).join('');
+}
+
+function updatePreview() {
+  const envId = document.getElementById('f-scene-env').value;
+  const env = getEnv(envId);
+  const path = document.getElementById('f-scene-path').value;
+  const params = document.getElementById('f-scene-params').value;
+  const box = document.getElementById('f-scene-preview');
+  const devBox = document.getElementById('f-scene-dev-preview');
+
+  if (!env) {
+    box.textContent = '—';
+    devBox.textContent = '—';
+    return;
+  }
+
+  const url = buildUrl({ envId, path, params }, env);
+  box.textContent = url || '—';
+
+  const rules = (env.replaces || []).filter(r => r.from);
+  if (!rules.length) {
+    devBox.textContent = '（该环境未配置替换规则）';
+    return;
+  }
+  let devUrl = url;
+  for (const r of rules) devUrl = devUrl.replace(r.from, r.to ?? '');
+  devBox.textContent = devUrl || '—';
+}
+
+function openSceneModal(scene = null, isDraft = false) {
+  if (!ENVS.length) {
+    toast('请先创建一个环境');
+    switchTab('envs');
+    return;
+  }
+  const isEdit = scene && scene.id && !isDraft;
+  editingSceneId = isEdit ? scene.id : null;
+
+  document.getElementById('sceneModalTitle').textContent =
+    isEdit ? '编辑场景' : (isDraft ? '复制场景（新建）' : '新建场景');
+
+  document.getElementById('f-scene-name').value = scene?.name || '';
+  document.getElementById('f-scene-desc').value = scene?.desc || '';
+  document.getElementById('f-scene-path').value = scene?.path || '';
+  document.getElementById('f-scene-params').value = scene?.params || '';
+  document.getElementById('f-scene-user').value = scene?.user || '';
+  document.getElementById('f-scene-pass').value = scene?.pass || '';
+  document.getElementById('f-scene-tags').value = (scene?.tags || []).join(',');
+  document.getElementById('f-scene-pass').type = 'password';
+
+  fillEnvSelect(scene?.envId);
+  updatePreview();
+  document.getElementById('sceneModal').classList.add('show');
+}
+
+function saveScene() {
+  const name = document.getElementById('f-scene-name').value.trim();
+  const envId = document.getElementById('f-scene-env').value;
+  if (!name) { toast('请填写场景名称'); return; }
+  if (!envId) { toast('请选择所属环境'); return; }
+
+  const data = {
+    name,
+    desc: document.getElementById('f-scene-desc').value.trim(),
+    envId,
+    path: document.getElementById('f-scene-path').value.trim(),
+    params: document.getElementById('f-scene-params').value.trim(),
+    user: document.getElementById('f-scene-user').value.trim(),
+    pass: document.getElementById('f-scene-pass').value,
+    tags: document.getElementById('f-scene-tags').value
+      .split(',').map(x => x.trim()).filter(Boolean)
+  };
+
+  if (editingSceneId) {
+    const idx = SCENES.findIndex(s => s.id === editingSceneId);
+    SCENES[idx] = { ...SCENES[idx], ...data };
+  } else {
+    const maxOrder = SCENES.reduce((m, s) => Math.max(m, s.order || 0), 0);
+    SCENES.push({ id: uid(), order: maxOrder + 1, mark: '', createdAt: Date.now(), ...data });
+  }
+  saveScenes(SCENES);
+  renderScenes(document.getElementById('searchInput').value);
+  renderEnvs(document.getElementById('searchInput').value);
+  document.getElementById('sceneModal').classList.remove('show');
+  toast(editingSceneId ? '已更新' : '已创建');
+}
+
+/* ============================================================
+ *  环境弹窗 + 替换规则编辑器
+ * ============================================================ */
+let editingEnvId = null;
+let editingReplaces = [];
+
+function renderReplaceEditor() {
+  const box = document.getElementById('replaceEditor');
+  if (!editingReplaces.length) {
+    box.innerHTML = '<div class="replace-empty">（暂无替换规则，点下面按钮添加）</div>';
+    return;
+  }
+  box.innerHTML = editingReplaces.map((r, i) => `
+    <div class="replace-row" data-idx="${i}">
+      <span class="idx">${i + 1}.</span>
+      <input type="text" class="re-from" value="${escapeHtml(r.from || '')}" placeholder="原串，如 /screen/" />
+      <span class="arrow">→</span>
+      <input type="text" class="re-to" value="${escapeHtml(r.to || '')}" placeholder="新串，如 /screen-dev/" />
+      <button type="button" class="del" data-del="${i}" title="删除此规则">✕</button>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.replace-row').forEach(row => {
+    const idx = Number(row.dataset.idx);
+    row.querySelector('.re-from').addEventListener('input', e => {
+      editingReplaces[idx].from = e.target.value;
+    });
+    row.querySelector('.re-to').addEventListener('input', e => {
+      editingReplaces[idx].to = e.target.value;
+    });
+    row.querySelector('.del').addEventListener('click', () => {
+      editingReplaces.splice(idx, 1);
+      renderReplaceEditor();
+    });
+  });
+}
+
+function openEnvModal(env = null, isDraft = false) {
+  const isEdit = env && env.id && !isDraft;
+  editingEnvId = isEdit ? env.id : null;
+
+  document.getElementById('envModalTitle').textContent =
+    isEdit ? '编辑环境' : (isDraft ? '复制环境（新建）' : '新建环境');
+
+  document.getElementById('f-env-name').value  = env?.name || '';
+  document.getElementById('f-env-base').value  = env?.base || '';
+  document.getElementById('f-env-prefix').value= env?.prefix || '';
+  document.getElementById('f-env-desc').value  = env?.desc || '';
+  document.getElementById('f-env-color').value = env?.color || '#667eea';
+
+  editingReplaces = (env?.replaces || []).map(r => ({ from: r.from || '', to: r.to || '' }));
+  renderReplaceEditor();
+
+  document.getElementById('envModal').classList.add('show');
+}
+
+function saveEnv() {
+  const name = document.getElementById('f-env-name').value.trim();
+  const base = document.getElementById('f-env-base').value.trim().replace(/\/+$/, '');
+  if (!name) { toast('请填写环境名称'); return; }
+  if (!base) { toast('请填写基础域名'); return; }
+
+  const replaces = editingReplaces
+    .map(r => ({ from: (r.from || '').trim(), to: (r.to || '').trim() }))
+    .filter(r => r.from);
+
+  const data = {
+    name,
+    base,
+    prefix: document.getElementById('f-env-prefix').value.trim(),
+    desc: document.getElementById('f-env-desc').value.trim(),
+    color: document.getElementById('f-env-color').value.trim() || '#667eea',
+    replaces
+  };
+
+  if (editingEnvId) {
+    const idx = ENVS.findIndex(e => e.id === editingEnvId);
+    ENVS[idx] = { ...ENVS[idx], ...data };
+  } else {
+    ENVS.push({ id: uid(), ...data });
+  }
+  saveEnvs(ENVS);
+  renderEnvs(document.getElementById('searchInput').value);
+  renderScenes(document.getElementById('searchInput').value);
+  refreshCurrentEnvSelect();
+  refreshViewBanner();
+  document.getElementById('envModal').classList.remove('show');
+  toast(editingEnvId ? '已更新' : '已创建');
+}
+
+/* ============================================================
+ *  Tab 切换
+ * ============================================================ */
+function switchTab(tab) {
+  document.querySelectorAll('.header-tabs button').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.view').forEach(v =>
+    v.classList.toggle('active', v.id === 'view-' + tab));
+  document.getElementById('searchInput').value = '';
+  // 筛选栏只在场景视图显示
+  document.getElementById('filterBar').style.display =
+    (tab === 'scenes' && SCENES.length) ? 'flex' : 'none';
+  if (tab === 'scenes') renderScenes();
+  else renderEnvs();
+}
+
+/* ============================================================
+ *  事件绑定
+ * ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderScenes();
+  renderEnvs();
+  refreshCurrentEnvSelect();
+  refreshViewBanner();
+  refreshFilterCounts();
+
+  document.querySelectorAll('.header-tabs button').forEach(b =>
+    b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    const active = document.querySelector('.view.active').id;
+    if (active === 'view-scenes') renderScenes(e.target.value);
+    else renderEnvs(e.target.value);
+  });
+
+  document.getElementById('currentEnvSelect').addEventListener('change', e => {
+    const id = e.target.value;
+    if (!id) {
+      setViewEnv('');
+      toast('已恢复：用场景自己的环境');
+    } else {
+      const env = getEnv(id);
+      if (env) {
+        setViewEnv(id);
+        toast(`已切换视图环境：${env.name}`);
+      }
+    }
+  });
+
+  document.getElementById('resetViewEnv').addEventListener('click', () => {
+    setViewEnv('');
+    toast('已恢复默认');
+  });
+
+  // 筛选按钮
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMarkFilter(btn.dataset.filter);
+    });
+  });
+
+  // 重置所有标记
+  document.getElementById('resetAllMarks').addEventListener('click', resetAllMarks);
+
+  // 排序
+  document.getElementById('sortBtn').addEventListener('click', openSortModal);
+  document.getElementById('saveSortBtn').addEventListener('click', saveSortOrder);
+  document.getElementById('sortByEnvBtn').addEventListener('click', sortByEnv);
+  document.getElementById('sortByNameBtn').addEventListener('click', sortByName);
+  document.getElementById('sortByTimeBtn').addEventListener('click', sortByTime);
+
+  document.getElementById('newBtn').addEventListener('click', () => {
+    const active = document.querySelector('.view.active').id;
+    if (active === 'view-scenes') openSceneModal();
+    else openEnvModal();
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn =>
+    btn.addEventListener('click', () =>
+      document.getElementById(btn.dataset.close).classList.remove('show')));
+
+  document.querySelectorAll('.modal-mask').forEach(mask =>
+    mask.addEventListener('click', e => {
+      if (e.target === mask) mask.classList.remove('show');
+    }));
+
+  document.getElementById('saveSceneBtn').addEventListener('click', saveScene);
+  document.getElementById('saveEnvBtn').addEventListener('click', saveEnv);
+
+  document.getElementById('addReplaceRule').addEventListener('click', () => {
+    editingReplaces.push({ from: '', to: '' });
+    renderReplaceEditor();
+    const box = document.getElementById('replaceEditor');
+    const last = box.querySelector('.replace-row:last-child .re-from');
+    if (last) last.focus();
+  });
+
+  ['f-scene-env','f-scene-path','f-scene-params'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+
+  document.getElementById('copySceneUser').addEventListener('click', () => {
+    const val = document.getElementById('f-scene-user').value.trim();
+    if (!val) return toast('用户名为空');
+    copyText(val);
+  });
+
+  document.getElementById('toggleScenePass').addEventListener('click', () => {
+    const pwd = document.getElementById('f-scene-pass');
+    pwd.type = pwd.type === 'password' ? 'text' : 'password';
+  });
+
+  document.getElementById('copyScenePass').addEventListener('click', () => {
+    const val = document.getElementById('f-scene-pass').value;
+    if (!val) return toast('密码为空');
+    copyText(val);
+  });
+
+  document.getElementById('openDevPreview').addEventListener('click', () => {
+    const envId = document.getElementById('f-scene-env').value;
+    const path  = document.getElementById('f-scene-path').value;
+    const params= document.getElementById('f-scene-params').value;
+    const env = getEnv(envId);
+    if (!env) return toast('请选择环境');
+    const rules = (env.replaces || []).filter(r => r.from);
+    if (!rules.length) return toast('该环境未配置替换规则');
+    const baseUrl = buildUrl({ envId, path, params }, env);
+    if (!baseUrl) return toast('地址为空');
+    let dev = baseUrl;
+    for (const r of rules) dev = dev.replace(r.from, r.to ?? '');
+    window.open(dev, '_blank');
+  });
+
+  document.getElementById('ioBtn').addEventListener('click', () => {
+    document.getElementById('ioText').value = JSON.stringify(
+      { envs: ENVS, scenes: SCENES }, null, 2);
+    document.getElementById('ioModal').classList.add('show');
+  });
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    document.getElementById('ioText').value = JSON.stringify(
+      { envs: ENVS, scenes: SCENES }, null, 2);
+    toast('已导出到文本框');
+  });
+  document.getElementById('copyIOBtn').addEventListener('click', () => {
+    copyText(document.getElementById('ioText').value);
+  });
+  document.getElementById('importBtn').addEventListener('click', () => {
+    try {
+      const data = JSON.parse(document.getElementById('ioText').value);
+      if (!Array.isArray(data.envs) || !Array.isArray(data.scenes)) {
+        throw new Error('格式不对');
+      }
+      if (!confirm('导入将覆盖当前所有数据，确认继续？')) return;
+      data.envs.forEach(e => { if (!Array.isArray(e.replaces)) e.replaces = []; });
+
+      const sorted = [...data.scenes].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      sorted.forEach((s, i) => {
+        if (typeof s.order !== 'number') s.order = i + 1;
+        if (typeof s.mark !== 'string') s.mark = '';
+      });
+
+      ENVS = data.envs;
+      SCENES = data.scenes;
+      saveEnvs(ENVS);
+      saveScenes(SCENES);
+
+      if (VIEW_ENV_ID && !getEnv(VIEW_ENV_ID)) {
+        VIEW_ENV_ID = '';
+        localStorage.removeItem(LS_VIEW_ENV);
+      }
+      renderEnvs();
+      renderScenes();
+      refreshCurrentEnvSelect();
+      refreshViewBanner();
+      refreshFilterCounts();
+      document.getElementById('ioModal').classList.remove('show');
+      toast('导入成功');
+    } catch (e) {
+      toast('JSON 解析失败：' + e.message);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-mask.show').forEach(m =>
+        m.classList.remove('show'));
+    }
+  });
+});
+</script>
+</body>
+</html>
