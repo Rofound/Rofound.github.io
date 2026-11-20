@@ -21,24 +21,24 @@ function FindProxyForURL(url, host) {
 
     // 国内常见域名直连
     if (
-        shExpMatch(host, "*.cn") ||
-        shExpMatch(host, "*.baidu.com") ||
-        shExpMatch(host, "*.qq.com") ||
-        shExpMatch(host, "*.aliyun.com") ||
-        shExpMatch(host, "*.taobao.com") ||
-        shExpMatch(host, "*.jd.com") ||
-        shExpMatch(host, "*.163.com") ||
-        shExpMatch(host, "*.126.com") ||
-        shExpMatch(host, "*.bilibili.com") ||
-        shExpMatch(host, "*.zhihu.com") ||
-        shExpMatch(host, "*.douyin.com") ||
-        shExpMatch(host, "*.weixin.qq.com") ||
-        shExpMatch(host, "*.bing.com") ||
+        dnsDomainIs(host, ".cn") ||
+        dnsDomainIs(host, ".baidu.com") ||
+        dnsDomainIs(host, ".qq.com") ||
+        dnsDomainIs(host, ".aliyun.com") ||
+        dnsDomainIs(host, ".taobao.com") ||
+        dnsDomainIs(host, ".jd.com") ||
+        dnsDomainIs(host, ".163.com") ||
+        dnsDomainIs(host, ".126.com") ||
+        dnsDomainIs(host, ".bilibili.com") ||
+        dnsDomainIs(host, "*.zhihu.com") ||
+        dnsDomainIs(host, ".douyin.com") ||
+        dnsDomainIs(host, ".weixin.qq.com") ||
+        dnsDomainIs(host, ".bing.com") ||
 
-        shExpMatch(host, "*.cmpo1914.com") ||
-        shExpMatch(host, "*.cmhk.com") ||
-        shExpMatch(host, "*.cmft.com") ||
-        shExpMatch(host, "*.cmhr.com")
+        dnsDomainIs(host, ".cmpo1914.com") ||
+        dnsDomainIs(host, ".cmhk.com") ||
+        dnsDomainIs(host, ".cmft.com") ||
+        dnsDomainIs(host, ".cmhr.com")
     ) {
         return "DIRECT";
     }
